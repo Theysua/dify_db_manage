@@ -4,7 +4,8 @@ import {
   RocketOutlined,
   ToolOutlined,
   UserOutlined,
-  ControlOutlined
+  ControlOutlined,
+  TeamOutlined
 } from '@ant-design/icons';
 import { Layout, Menu, theme } from 'antd';
 import React, { useState } from 'react';
@@ -41,6 +42,11 @@ const MainLayout = () => {
       key: '/customers',
       icon: <UserOutlined />,
       label: '客户管理',
+    },
+    {
+      key: '/sales-reps',
+      icon: <TeamOutlined />,
+      label: '销售人员管理',
     },
     {
       key: '/engineers',

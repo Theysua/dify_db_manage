@@ -33,6 +33,7 @@ import {
 } from '@ant-design/icons';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
+import config from '../../config';
 import '../../styles/AppleStyle.css';
 
 const { Title } = Typography;
@@ -57,7 +58,12 @@ const Engineers = () => {
   const fetchEngineerStats = async () => {
     try {
       setStatsLoading(true);
-      const response = await axios.get('/api/v1/engineers/statistics/overview');
+      console.log(`获取工程师统计信息: ${config.apiBaseUrl}/engineers/statistics/overview/`);
+      const response = await axios.get(`${config.apiBaseUrl}/engineers/statistics/overview/`, {
+        headers: {
+          'Accept': 'application/json',
+        }
+      });
       setStats(response.data || {});
     } catch (error) {
       console.error('获取工程师统计数据失败:', error);
@@ -87,15 +93,45 @@ const Engineers = () => {
   const fetchEngineers = async (page = 1, size = 10, filters = {}) => {
     try {
       setLoading(true);
-      const params = { 
-        skip: (page - 1) * size, 
-        limit: size,
-        ...filters
-      };
+      const params = new URLSearchParams();
+      params.append('skip', (page - 1) * size);
+      params.append('limit', size);
       
-      const response = await axios.get('/api/v1/engineers', { params });
+      // 添加其他筛选条件
+      Object.keys(filters).forEach(key => {
+        if (filters[key]) params.append(key, filters[key]);
+      });
+      
+      console.log(`发送工程师请求: ${config.apiBaseUrl}/engineers/?${params.toString()}`);
+      
+      const response = await axios.get(`${config.apiBaseUrl}/engineers/?${params.toString()}`, {
+        headers: {
+          'Accept': 'application/json',
+        }
+      });
+      
+      console.log('Engineers API Response:', response.data);
+      console.log('Engineers Response Headers:', response.headers);
+      
+      // 显示所有响应头
+      Object.keys(response.headers).forEach(key => {
+        console.log(`Engineers Header ${key}:`, response.headers[key]);
+      });
+      
       setEngineers(response.data || []);
-      setTotal(response.headers['x-total-count'] || response.data.length);
+      // 从响应头中读取总记录数
+      const totalCount = parseInt(response.headers['x-total-count'], 10);
+      console.log('Engineers X-Total-Count header:', response.headers['x-total-count']);
+      console.log('Engineers Parsed total count:', totalCount);
+      
+      if (!isNaN(totalCount)) {
+        setTotal(totalCount);
+        console.log('设置工程师总记录数为:', totalCount);
+      } else {
+        setTotal(response.data.length);
+        console.log('无法获取工程师总记录数，使用数据长度:', response.data.length);
+      }
+      
       setCurrentPage(page);
       setPageSize(size);
     } catch (error) {
@@ -167,8 +203,23 @@ const Engineers = () => {
   };
 
   // 处理表格变化
-  const handleTableChange = (pagination) => {
-    fetchEngineers(pagination.current, pagination.pageSize, searchForm.getFieldsValue());
+  const handleTableChange = (pagination, filters, sorter) => {
+    console.log('工程师分页变化:', pagination);
+    const newPage = pagination.current;
+    const newPageSize = pagination.pageSize;
+    
+    // 记录新的页码和页面大小
+    setCurrentPage(newPage);
+    setPageSize(newPageSize);
+    
+    // 获取当前筛选条件
+    const filterValues = searchForm.getFieldsValue();
+    console.log('当前筛选条件:', filterValues);
+    
+    // 重新获取数据
+    fetchEngineers(newPage, newPageSize, filterValues);
+    
+    console.log(`已切换到工程师列表第 ${newPage} 页，每页 ${newPageSize} 条记录`);
   };
 
   // 新建/编辑工程师弹窗
@@ -539,12 +590,19 @@ const Engineers = () => {
             total: total,
             showSizeChanger: true,
             showQuickJumper: true,
+            pageSizeOptions: [10, 20, 50, 100],
             showTotal: (total) => `共 ${total} 条记录`,
+            position: ['bottomRight'],
+            size: 'default'
           }}
           loading={loading}
           onChange={handleTableChange}
           className="apple-table"
         />
+        {/* 添加调试信息 */}
+        <div style={{ marginTop: 10, color: '#999', fontSize: '12px' }}>
+          当前页: {currentPage}, 每页数量: {pageSize}, 总记录数: {total}
+        </div>
       </Card>
       
       {/* 新建/编辑工程师弹窗 */}

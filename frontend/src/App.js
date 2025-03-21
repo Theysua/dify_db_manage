@@ -14,6 +14,8 @@ import Deployments from './pages/deployments/Deployments';
 import DeploymentDetail from './pages/deployments/DeploymentDetail';
 import Customers from './pages/customers/Customers';
 import CustomerDetail from './pages/customers/CustomerDetail';
+import SalesReps from './pages/sales_reps/SalesReps';
+import SalesRepDetail from './pages/sales_reps/SalesRepDetail';
 import Engineers from './pages/engineers/Engineers';
 import EngineerDetail from './pages/engineers/EngineerDetail';
 import Operations from './pages/operations/Operations';
@@ -37,6 +39,10 @@ function App() {
             <Route path="customers">
               <Route index element={<Customers />} />
               <Route path=":id" element={<CustomerDetail />} />
+            </Route>
+            <Route path="sales-reps">
+              <Route index element={<SalesReps />} />
+              <Route path=":id" element={<SalesRepDetail />} />
             </Route>
             <Route path="engineers">
               <Route index element={<Engineers />} />

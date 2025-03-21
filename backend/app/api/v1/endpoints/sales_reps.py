@@ -38,7 +38,18 @@ def get_sales_reps(
     db: Session = Depends(get_db)
 ):
     """Get list of sales representatives with pagination and filtering"""
-    return SalesRepService.get_sales_reps(
+    from fastapi.responses import JSONResponse
+    import json
+    from datetime import datetime
+    
+    # 自定义JSON编码器处理datetime
+    class DateTimeEncoder(json.JSONEncoder):
+        def default(self, obj):
+            if isinstance(obj, datetime):
+                return obj.isoformat()
+            return super().default(obj)
+    
+    result = SalesRepService.get_sales_reps(
         db,
         skip=skip,
         limit=limit,
@@ -46,6 +57,21 @@ def get_sales_reps(
         department=department,
         status=status
     )
+    
+    # 调试输出
+    print(f"Total count: {result['total']}, Items: {len(result['items'])}")
+    
+    # 创建响应，设置分页相关头部
+    headers = {
+        "X-Total-Count": str(result["total"]),
+        "Access-Control-Expose-Headers": "X-Total-Count"
+    }
+    
+    # 将Pydantic模型转换为字典，并处理datetime字段
+    items_json = json.loads(json.dumps([sr.dict() for sr in result["items"]], cls=DateTimeEncoder))
+    
+    # 在响应头中设置总数，同时返回数据列表
+    return JSONResponse(content=items_json, headers=headers)
 
 @router.put("/{sales_rep_id}", response_model=schemas.SalesRepInfo)
 def update_sales_rep(

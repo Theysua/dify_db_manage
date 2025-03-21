@@ -9,7 +9,7 @@ from app.schemas import schemas
 
 class SalesRepService:
     @staticmethod
-    def create_sales_rep(db: Session, sales_rep_data: schemas.SalesRepCreate) -> SalesRep:
+    def create_sales_rep(db: Session, sales_rep_data: schemas.SalesRepCreate) -> schemas.SalesRepInfo:
         """Create a new sales rep record"""
         db_sales_rep = SalesRep(
             sales_rep_name=sales_rep_data.SalesRepName,
@@ -24,7 +24,18 @@ class SalesRepService:
         db.commit()
         db.refresh(db_sales_rep)
         
-        return db_sales_rep
+        # 转换为SalesRepInfo模式返回
+        return schemas.SalesRepInfo(
+            SalesRepID=db_sales_rep.sales_rep_id,
+            SalesRepName=db_sales_rep.sales_rep_name,
+            Email=db_sales_rep.email,
+            Phone=db_sales_rep.phone,
+            Department=db_sales_rep.department,
+            Position=db_sales_rep.position,
+            Status=db_sales_rep.status,
+            CreatedAt=db_sales_rep.created_at,
+            UpdatedAt=db_sales_rep.updated_at
+        )
 
     @staticmethod
     def get_sales_rep(db: Session, sales_rep_id: int) -> Optional[schemas.SalesRepInfo]:
@@ -54,8 +65,8 @@ class SalesRepService:
         name_filter: Optional[str] = None,
         department: Optional[str] = None,
         status: Optional[schemas.StatusEnum] = None
-    ) -> List[schemas.SalesRepInfo]:
-        """Get list of sales reps with filtering options"""
+    ) -> Dict[str, Any]:
+        """Get list of sales reps with filtering options and total count"""
         query = db.query(SalesRep)
         
         # Apply filters
@@ -66,11 +77,14 @@ class SalesRepService:
         if status:
             query = query.filter(SalesRep.status == status)
         
+        # Get total count (before pagination)
+        total_count = query.count()
+        
         # Apply pagination
         sales_reps = query.order_by(SalesRep.sales_rep_name).offset(skip).limit(limit).all()
         
         # Convert to schema model
-        return [
+        result = [
             schemas.SalesRepInfo(
                 SalesRepID=sales_rep.sales_rep_id,
                 SalesRepName=sales_rep.sales_rep_name,
@@ -84,6 +98,11 @@ class SalesRepService:
             )
             for sales_rep in sales_reps
         ]
+        
+        return {
+            "items": result,
+            "total": total_count
+        }
 
     @staticmethod
     def update_sales_rep(

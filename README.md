@@ -4,6 +4,8 @@
 
 A comprehensive license lifecycle management platform for Dify Enterprise products.
 
+> **最新更新 (2025-03-22)**: 正在解决销售代表和工程师管理模块的分页问题。新增了详细的[开发者指南](./DEVELOPER_GUIDE.md)。
+
 ## Project Overview
 
 Dify Enterprise License Management System (DELMS) is a license management system designed for enterprise customers. It builds a complete license lifecycle tracking and management process with "License ID" as the core business entity. The system ensures a clear hierarchical relationship between customers and licenses, precise role-based access control, and standardized business processes.
@@ -217,6 +219,35 @@ The system implements a precise role-based access control mechanism:
 - **Deployment Engineers**: Handle deployment and configuration of licensed systems
 - **Channel Partners**: View and manage licenses associated with their customers
 - **System Administrators**: Full access to all system functions
+
+## Latest Updates and Known Issues
+
+### Recent Updates (2025-03-22)
+
+- **分页问题修复进展** (❗正在进行中): 正在解决销售代表和工程师列表的分页问题。
+  - 已尝试更新端点返回分页信息的方式。
+  - 已修改API URL格式，确保以斜杠结尾。
+  - 已引入页面大小选项和调试信息。
+  - 当前状态: 仍在解决中，需要进一步调查和修改。
+
+- **新增开发者指南**: 创建了详细的[DEVELOPER_GUIDE.md](./DEVELOPER_GUIDE.md)，包含：
+  - 前端和后端代码的最佳实践
+  - 分页和数据过滤的实现指南
+  - 常见问题及解决方案
+  - 测试和部署策略
+  - 未来开发计划
+
+### Known Issues
+
+- **分页功能问题** (❗高优先级): 销售代表和工程师列表的分页功能仍然存在问题，包括：
+  - 切换页面时，数据可能不会正确加载
+  - 总页数和总记录数显示可能不准确
+  - 每页记录数量变更后可能出现不一致的情况
+  - 当前进展: 已经做了初步修复尝试，但仍需要进一步解决
+
+- **资源占用统计**: 工程师仪表板有时候显示的资源占用统计数据延迟。
+- **搜索性能**: 当数据量大时，高级搜索功能可能会受影响。
+- **导出功能**: 大量数据导出为Excel格式时可能遇到性能问题。
 
 ## Getting Started
 

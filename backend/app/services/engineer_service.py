@@ -16,8 +16,9 @@ class EngineerService:
             email=engineer_data.Email,
             phone=engineer_data.Phone,
             specialization=engineer_data.Specialization,
-            certification=engineer_data.Certification,
-            experience_years=engineer_data.ExperienceYears,
+            # 移除不存在的字段
+            # certification=engineer_data.Certification,
+            # experience_years=engineer_data.ExperienceYears,
             department=engineer_data.Department,
             status=engineer_data.Status
         )
@@ -59,8 +60,8 @@ class EngineerService:
         specialization: Optional[str] = None,
         department: Optional[str] = None,
         status: Optional[schemas.StatusEnum] = None
-    ) -> List[schemas.EngineerInfo]:
-        """Get list of engineers with filtering options"""
+    ) -> Dict[str, Any]:
+        """Get list of engineers with filtering options and total count"""
         query = db.query(FactoryEngineer)
         
         # Apply filters
@@ -73,19 +74,22 @@ class EngineerService:
         if status:
             query = query.filter(FactoryEngineer.status == status)
         
+        # Get total count (before pagination)
+        total_count = query.count()
+        
         # Apply pagination
         engineers = query.order_by(FactoryEngineer.engineer_name).offset(skip).limit(limit).all()
         
         # Convert to schema model
-        return [
+        result = [
             schemas.EngineerInfo(
                 EngineerID=engineer.engineer_id,
                 EngineerName=engineer.engineer_name,
                 Email=engineer.email,
                 Phone=engineer.phone,
                 Specialization=engineer.specialization,
-                Certification=engineer.certification,
-                ExperienceYears=engineer.experience_years,
+                Certification=None,  # 模型中没有这个字段
+                ExperienceYears=None,  # 模型中没有这个字段
                 Department=engineer.department,
                 Status=engineer.status,
                 CreatedAt=engineer.created_at,
@@ -93,6 +97,11 @@ class EngineerService:
             )
             for engineer in engineers
         ]
+        
+        return {
+            "items": result,
+            "total": total_count
+        }
 
     @staticmethod
     def update_engineer(

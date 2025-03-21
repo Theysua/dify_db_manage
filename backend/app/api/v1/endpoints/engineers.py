@@ -39,7 +39,18 @@ def get_engineers(
     db: Session = Depends(get_db)
 ):
     """Get list of engineers with pagination and filtering"""
-    return EngineerService.get_engineers(
+    from fastapi.responses import JSONResponse
+    import json
+    from datetime import datetime
+    
+    # 自定义JSON编码器处理datetime
+    class DateTimeEncoder(json.JSONEncoder):
+        def default(self, obj):
+            if isinstance(obj, datetime):
+                return obj.isoformat()
+            return super().default(obj)
+    
+    result = EngineerService.get_engineers(
         db,
         skip=skip,
         limit=limit,
@@ -48,6 +59,20 @@ def get_engineers(
         department=department,
         status=status
     )
+    
+    # 调试输出
+    print(f"Engineers - Total count: {result['total']}, Items: {len(result['items'])}")
+    
+    # 创建响应，设置分页相关头部
+    headers = {
+        "X-Total-Count": str(result["total"]),
+        "Access-Control-Expose-Headers": "X-Total-Count"
+    }
+    
+    # 将Pydantic模型转换为字典，并处理datetime字段
+    items_json = json.loads(json.dumps([eng.dict() for eng in result["items"]], cls=DateTimeEncoder))
+    
+    return JSONResponse(content=items_json, headers=headers)
 
 @router.put("/{engineer_id}", response_model=schemas.EngineerInfo)
 def update_engineer(
