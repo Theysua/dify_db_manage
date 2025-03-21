@@ -1,31 +1,109 @@
-# License Management System
+# Dify Enterprise License Management System
 
-A comprehensive system to manage licenses, customers, sales representatives, resellers, purchases, deployments, and support engineers.
+![Dify Enterprise](https://path.to/logo.png)
+
+A comprehensive license lifecycle management platform for Dify Enterprise products.
 
 ## Project Overview
 
-The License Management System (LMS) is designed to provide a structured approach to managing software licenses throughout their lifecycle. The system focuses on the License ID as the core element, ensuring clear hierarchy, precise role-based access control, and standardized business processes.
+Dify Enterprise License Management System (DELMS) is a license management system designed for enterprise customers. It builds a complete license lifecycle tracking and management process with "License ID" as the core business entity. The system ensures a clear hierarchical relationship between customers and licenses, precise role-based access control, and standardized business processes.
 
-## Features
+## Key Features
 
-- **License Management**: Create, update, view, and delete licenses with complete tracking of changes.
-- **Customer Management**: Maintain customer information and their associated licenses.
-- **Sales Representatives**: Manage sales representatives and track their performance.
-- **Resellers**: Track partner resellers and their associated licenses.
-- **Purchase Records**: Record all transactions related to licenses, including new purchases, renewals, and expansions.
-- **Deployment Records**: Monitor the deployment process of licenses, including engineer assignments.
-- **Engineer Management**: Manage factory engineers responsible for deployments.
-- **Performance Tracking**: Track sales and deployment metrics with detailed statistics.
+### License Lifecycle Management
+
+The system fully tracks the following states of licenses:
+
+1. **Creation** - Records the creation and order date of the license
+2. **Deployment** - Tracks the deployment status and completion of the license
+3. **In Use** - Monitors actual workspaces and users, with alerts for overuse
+4. **Renewal/Upgrade** - Records all purchase, renewal, and upgrade transactions
+5. **Changes** - Complete change history tracking
+6. **Expiration** - Monitors licenses that are about to expire or have expired
+
+### Core Function Modules
+
+- **License Management**: Create, update, view licenses with complete change tracking
+- **Customer Management**: Maintain customer information and their associated licenses
+- **Sales Representative Management**: Manage sales representatives and track their performance
+- **Reseller Management**: Track partners and their associated licenses
+- **Purchase Records**: Record all transactions related to licenses, including new purchases, renewals, and expansions
+- **Deployment Records**: Monitor the deployment process of licenses, including engineer assignments
+- **Engineer Management**: Manage factory engineers responsible for deployments
+- **Performance Tracking**: Track sales and deployment metrics with detailed statistics
+- **Alert System**: Automatic alerts for licenses that are about to expire or are being overused
 
 ## Technology Stack
 
-- **Backend**: FastAPI, Python 3.8+
-- **Frontend**: React 18, Ant Design 5
+### Backend
+- **Framework**: FastAPI
+- **Language**: Python 3.8+
 - **Database**: MySQL
 - **ORM**: SQLAlchemy
-- **Authentication**: JWT (JSON Web Tokens)
 - **API Documentation**: Swagger UI / OpenAPI
-- **Development Tools**: Alembic (migrations), Node.js
+- **Migration Tool**: Alembic
+- **Authentication**: JWT (JSON Web Tokens)
+
+### Frontend
+- **Framework**: React 18
+- **UI Library**: Ant Design 5
+- **State Management**: React Hooks
+- **Routing**: React Router
+- **HTTP Client**: Axios
+- **Build Tool**: Webpack
+- **Package Manager**: npm/yarn
+
+### Development & Deployment
+- **Version Control**: Git
+- **CI/CD**: GitHub Actions
+- **Containerization**: Docker
+- **Container Orchestration**: Docker Compose
+- **Code Quality**: ESLint, Prettier
+- **Testing Tools**: Jest, React Testing Library
+
+## System Architecture
+
+The system adopts a frontend-backend separated architecture, communicating through RESTful APIs.
+
+```
++----------------+     +----------------+     +----------------+
+|                |     |                |     |                |
+|  Frontend App  |<--->|  Backend API  |<--->|   Database     |
+|  React + Antd  |     |    FastAPI    |     |     MySQL      |
+|                |     |                |     |                |
++----------------+     +----------------+     +----------------+
+```
+
+### Data Model Relationships
+
+Below are the core data models and their relationships in the system:
+
+```
++-------------+     +-------------+     +-------------+
+|             |     |             |     |             |
+|  Customer   |<--->|   License   |<--->|  SalesRep   |
+|             |     |             |     |             |
++-------------+     +------+------+     +-------------+
+                           |
+                           |
+           +--------------------------+
+           |              |           |
++----------v----+  +------v------+  +-v------------+
+|               |  |             |  |              |
+|PurchaseRecord |  |DeployRecord |  |  ChangeLog   |
+|               |  |             |  |              |
++---------------+  +-------------+  +--------------+
+```
+
+### License Lifecycle Flow
+
+```
++----------+     +-----------+     +--------+     +---------+     +--------+
+|          |     |           |     |        |     |         |     |        |
+| Created  |---->| Deployed  |---->| In Use |---->| Renewed |---->| Expired |
+|          |     |           |     |        |     |         |     |        |
++----------+     +-----------+     +--------+     +---------+     +--------+
+```
 
 ## Project Structure
 
@@ -35,20 +113,22 @@ dify_sales_db/
 │   ├── app/
 │   │   ├── api/
 │   │   │   └── v1/
-│   │   │       ├── endpoints/
-│   │   │       │   ├── licenses.py
-│   │   │       │   ├── customers.py
-│   │   │       │   ├── sales_reps.py
-│   │   │       │   ├── resellers.py
-│   │   │       │   ├── purchases.py
-│   │   │       │   ├── deployments.py
-│   │   │       │   └── engineers.py
-│   │   │       └── api.py
-│   │   ├── core/
-│   │   │   └── config.py
-│   │   ├── db/
-│   │   │   └── database.py
-│   │   ├── models/
+│   │   │       ├── endpoints/        # API endpoints
+│   │   │       │   ├── licenses.py   # License API
+│   │   │       │   ├── customers.py  # Customer API
+│   │   │       │   ├── sales_reps.py # Sales Rep API
+│   │   │       │   ├── resellers.py  # Reseller API
+│   │   │       │   ├── purchases.py  # Purchase Records API
+│   │   │       │   ├── deployments.py# Deployment Records API
+│   │   │       │   ├── stats.py      # Statistics API
+│   │   │       │   └── engineers.py  # Engineer API
+│   │   │       └── api.py            # API route registration
+│   │   ├── core/                     # Core configuration
+│   │   │   ├── config.py             # System config
+│   │   │   └── security.py           # Security related
+│   │   ├── db/                       # Database related
+│   │   │   └── database.py           # Database connection
+│   │   ├── models/                   # Data models
 │   │   │   └── models.py
 │   │   ├── schemas/
 │   │   │   └── schemas.py
@@ -92,6 +172,51 @@ dify_sales_db/
 │   └── setup.sh
 └── README.md
 ```
+
+## License Management Features
+
+### License Creation and Automated ID Generation
+
+The system generates unique license IDs based on a predefined format to ensure easy tracking and identification. The license ID format incorporates elements such as product type, creation date, and unique identifiers:
+
+```
+Format: XXX-YYYYMM-NNNNNN
+
+Where:
+- XXX: Product type (ENT for Enterprise, PRO for Professional, etc.)
+- YYYYMM: Year and month of creation
+- NNNNNN: Unique identifier
+```
+
+Example: `ENT-202503-123456`
+
+### License Lifecycle Visualization
+
+A comprehensive timeline view for each license shows its complete history:
+
+- Initial creation and order date
+- Deployment status and date
+- Current usage metrics (workspaces/users)
+- Purchase history, including renewals and upgrades
+- License expiration date
+
+### Usage Monitoring and Alerts
+
+The system continuously monitors license usage and provides alerts for:
+
+- Licenses approaching expiration (30, 60, 90 days)
+- Licenses with workspace/user counts exceeding authorized limits
+- Inactive licenses (no usage recorded)
+- Irregular usage patterns
+
+### Role-Based Access Control
+
+The system implements a precise role-based access control mechanism:
+
+- **Sales Representatives**: Manage customer and license information, create new licenses
+- **Deployment Engineers**: Handle deployment and configuration of licensed systems
+- **Channel Partners**: View and manage licenses associated with their customers
+- **System Administrators**: Full access to all system functions
 
 ## Getting Started
 
@@ -220,12 +345,73 @@ pytest
 
 #### Component Structure
 
-The frontend follows a modular structure:
+The frontend uses a component-based architecture with the following key components:
+
+- **Layout Components**: Page structure and navigation
+- **Form Components**: Reusable form elements for data entry
+- **Table Components**: Data display with sorting and filtering
+- **Chart Components**: Visualizations for performance metrics
+- **Modal Components**: Dialog boxes for confirmation and detailed views
+
+The frontend follows a modular file structure:
 - `layouts`: Page layouts and navigation components
 - `pages`: Main page components organized by domain entity
 - `components`: Reusable UI components
-- `services`: API service integrations
-- `utils`: Utility functions for error handling, formatting, etc.
+- `services`: API service clients
+- `utils`: Utility functions and helpers
+
+## Key Screens
+
+### License Management Dashboard
+
+The central dashboard provides an overview of all licenses with important metrics:
+
+- Total active/inactive licenses
+- Licenses by status (active, expired, etc.)
+- Licenses about to expire in the next 30/60/90 days
+- License distribution by product type
+- Usage metrics across customers
+
+### License Detail View
+
+The license detail view provides comprehensive information about a specific license:
+
+- License identifiers and associated customer information
+- Lifecycle timeline showing all key events
+- Usage metrics with visual indicators for overuse
+- Purchase and renewal history
+- Deployment records and status
+- Change history log
+
+### Operations Center
+
+The operations center allows sales representatives to create and manage licenses:
+
+- License creation with automated ID generation
+- Customer association and information management
+- Product and license type selection
+- Initial authorization limits
+- Deployment scheduling
+
+## Conclusion
+
+The Dify Enterprise License Management System provides a comprehensive solution for managing the entire lifecycle of software licenses. By centralizing license operations around the License ID, the system ensures clear tracking of all related information including customers, sales, procurement, channel partners, and deployments.
+
+The system's focus on precise license lifecycle management - from creation through deployment, usage, renewal, and expiration - provides stakeholders with complete visibility into license status and usage patterns, enabling better decision-making and customer service.
+
+## Contact
+
+For questions or support, please contact:
+
+- Email: support@example.com
+- Website: https://example.com
+
+## Version History
+
+- **v1.0.0** - Initial release
+- **v1.1.0** - Added license lifecycle tracking
+- **v1.2.0** - Enhanced usage monitoring
+
 
 #### Adding New Features
 
