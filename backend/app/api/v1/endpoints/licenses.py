@@ -9,6 +9,44 @@ from app.schemas import schemas
 
 router = APIRouter()
 
+@router.post("/create_license", response_model=schemas.LicenseIdResponse)
+def generate_license_id(license_data: dict = None):
+    """Generate a new license ID based on the submitted license details - This is a virtual endpoint
+    that will be implemented by the central license server. Currently, it simply generates a random ID,
+    but in the future, it will use the license details to determine the appropriate license ID format.
+    """
+    import random
+    import string
+    import datetime
+    
+    # Generate a random license ID with a specific format
+    now = datetime.datetime.now()
+    year = now.strftime("%Y")
+    month = now.strftime("%m")
+    
+    # In the future, the prefix might be based on the license type or other attributes
+    # For now, we'll just use a random 3-letter prefix or base it on the product name if available
+    if license_data and "ProductName" in license_data:
+        product_name = license_data["ProductName"]
+        if "Enterprise" in product_name:
+            prefix = "ENT"
+        elif "Pro" in product_name:
+            prefix = "PRO"
+        elif "Basic" in product_name:
+            prefix = "BAS"
+        else:
+            prefix = ''.join(random.choice(string.ascii_uppercase) for _ in range(3))
+    else:
+        prefix = ''.join(random.choice(string.ascii_uppercase) for _ in range(3))
+    
+    # Generate a random 6-digit number
+    random_digits = ''.join(random.choice(string.digits) for _ in range(6))
+    
+    # Format: XXX-YYYYMM-NNNNNN
+    license_id = f"{prefix}-{year}{month}-{random_digits}"
+    
+    return {"licenseId": license_id}
+
 @router.post("/", response_model=schemas.LicenseInfo)
 def create_license(
     license_data: schemas.LicenseCreate,

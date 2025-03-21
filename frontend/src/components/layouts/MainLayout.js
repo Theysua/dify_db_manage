@@ -1,14 +1,14 @@
-import React, { useState } from 'react';
-import { Layout, Menu, theme } from 'antd';
-import { Outlet, useNavigate, useLocation } from 'react-router-dom';
 import {
   DashboardOutlined,
   KeyOutlined,
   RocketOutlined,
-  TeamOutlined,
   ToolOutlined,
   UserOutlined,
+  ControlOutlined
 } from '@ant-design/icons';
+import { Layout, Menu, theme } from 'antd';
+import React, { useState } from 'react';
+import { Outlet, useLocation, useNavigate } from 'react-router-dom';
 
 const { Header, Content, Footer, Sider } = Layout;
 
@@ -30,7 +30,7 @@ const MainLayout = () => {
     {
       key: '/licenses',
       icon: <KeyOutlined />,
-      label: '许可证管理',
+      label: '许可证查询与管理',
     },
     {
       key: '/deployments',
@@ -46,6 +46,11 @@ const MainLayout = () => {
       key: '/engineers',
       icon: <ToolOutlined />,
       label: '工程师管理',
+    },
+    {
+      key: '/operations',
+      icon: <ControlOutlined />,
+      label: '运营工作台（新建许可证）',
     },
   ];
 
@@ -95,7 +100,7 @@ const MainLayout = () => {
           </div>
         </Content>
         <Footer style={{ textAlign: 'center' }}>
-          许可证管理系统 ©{new Date().getFullYear()} 由Codeium创建
+          Dify 许可证管理系统 ©{new Date().getFullYear()} 由 Xuan 创建
         </Footer>
       </Layout>
     </Layout>

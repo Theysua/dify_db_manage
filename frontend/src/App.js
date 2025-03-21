@@ -16,6 +16,7 @@ import Customers from './pages/customers/Customers';
 import CustomerDetail from './pages/customers/CustomerDetail';
 import Engineers from './pages/engineers/Engineers';
 import EngineerDetail from './pages/engineers/EngineerDetail';
+import Operations from './pages/operations/Operations';
 import NotFound from './pages/NotFound';
 
 function App() {
@@ -41,6 +42,7 @@ function App() {
               <Route index element={<Engineers />} />
               <Route path=":id" element={<EngineerDetail />} />
             </Route>
+            <Route path="operations" element={<Operations />} />
             <Route path="*" element={<NotFound />} />
           </Route>
         </Routes>

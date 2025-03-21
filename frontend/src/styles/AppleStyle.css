@@ -1,0 +1,190 @@
+/* Apple-inspired modern design system */
+
+:root {
+  /* Colors */
+  --apple-bg: #f5f5f7;
+  --apple-card: #ffffff;
+  --apple-primary: #0071e3;
+  --apple-secondary: #86868b;
+  --apple-success: #34c759;
+  --apple-warning: #ff9500;
+  --apple-danger: #ff3b30;
+  --apple-text-primary: #1d1d1f;
+  --apple-text-secondary: #86868b;
+  --apple-border: rgba(0, 0, 0, 0.1);
+  
+  /* Shadows */
+  --apple-shadow-sm: 0 2px 6px rgba(0, 0, 0, 0.05);
+  --apple-shadow-md: 0 4px 12px rgba(0, 0, 0, 0.08);
+  --apple-shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.12);
+  
+  /* Spacing */
+  --apple-spacing-xs: 4px;
+  --apple-spacing-sm: 8px;
+  --apple-spacing-md: 16px;
+  --apple-spacing-lg: 24px;
+  --apple-spacing-xl: 32px;
+  
+  /* Radius */
+  --apple-radius-sm: 8px;
+  --apple-radius-md: 12px;
+  --apple-radius-lg: 16px;
+}
+
+/* Global styles */
+body {
+  background-color: var(--apple-bg);
+  color: var(--apple-text-primary);
+  font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'SF Pro Icons', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Dashboard container */
+.dashboard-container {
+  padding: var(--apple-spacing-lg);
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+/* Card styling */
+.apple-card {
+  background-color: var(--apple-card);
+  border-radius: var(--apple-radius-md);
+  box-shadow: var(--apple-shadow-sm);
+  border: none;
+  overflow: hidden;
+  transition: all 0.3s ease;
+  margin-bottom: var(--apple-spacing-lg);
+}
+
+.apple-card:hover {
+  box-shadow: var(--apple-shadow-md);
+  transform: translateY(-2px);
+}
+
+.apple-card .ant-card-head {
+  border-bottom: 1px solid var(--apple-border);
+  padding: var(--apple-spacing-md) var(--apple-spacing-lg);
+}
+
+.apple-card .ant-card-body {
+  padding: var(--apple-spacing-lg);
+}
+
+/* Stats Card */
+.apple-stats-card {
+  text-align: center;
+  padding: var(--apple-spacing-lg);
+}
+
+.apple-stats-card .ant-statistic-title {
+  color: var(--apple-text-secondary);
+  font-size: 14px;
+  margin-bottom: var(--apple-spacing-xs);
+}
+
+.apple-stats-card .ant-statistic-content {
+  font-size: 36px;
+  font-weight: 500;
+}
+
+/* Tables */
+.apple-table .ant-table {
+  border-radius: var(--apple-radius-md);
+  overflow: hidden;
+}
+
+.apple-table .ant-table-thead > tr > th {
+  background-color: var(--apple-bg);
+  color: var(--apple-text-secondary);
+  font-weight: 500;
+  border-bottom: 1px solid var(--apple-border);
+}
+
+.apple-table .ant-table-tbody > tr > td {
+  border-bottom: 1px solid var(--apple-border);
+}
+
+.apple-table .ant-table-tbody > tr:hover > td {
+  background-color: rgba(0, 113, 227, 0.05);
+}
+
+/* Status badges */
+.apple-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 8px;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.apple-badge-success {
+  background-color: rgba(52, 199, 89, 0.1);
+  color: var(--apple-success);
+}
+
+.apple-badge-warning {
+  background-color: rgba(255, 149, 0, 0.1);
+  color: var(--apple-warning);
+}
+
+.apple-badge-danger {
+  background-color: rgba(255, 59, 48, 0.1);
+  color: var(--apple-danger);
+}
+
+.apple-badge-info {
+  background-color: rgba(0, 113, 227, 0.1);
+  color: var(--apple-primary);
+}
+
+/* Buttons */
+.apple-button {
+  border-radius: var(--apple-radius-sm);
+  font-weight: 500;
+  transition: all 0.3s ease;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.apple-button-primary {
+  background-color: var(--apple-primary);
+  color: white;
+  border: none;
+}
+
+.apple-button-primary:hover {
+  background-color: #0062c2;
+  color: white;
+}
+
+/* Title */
+.apple-title {
+  font-weight: 600;
+  margin-bottom: var(--apple-spacing-lg);
+  color: var(--apple-text-primary);
+}
+
+/* Section divider */
+.apple-divider {
+  margin: var(--apple-spacing-xl) 0;
+  border-color: var(--apple-border);
+}
+
+/* Error alert */
+.apple-alert {
+  border-radius: var(--apple-radius-md);
+  margin-bottom: var(--apple-spacing-lg);
+}
+
+/* Loading state */
+.apple-loader {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  background-color: var(--apple-bg);
+}

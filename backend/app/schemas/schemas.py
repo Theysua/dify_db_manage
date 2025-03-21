@@ -82,13 +82,14 @@ class LicenseBase(BaseModel):
     CustomerID: int
     SalesRepID: Optional[int] = None
     ResellerID: Optional[int] = None
-    ProductName: str
-    ProductVersion: Optional[str] = None
+    ProductName: str = "Dify Enterprise"  # Only Dify Enterprise is supported
     LicenseType: str
     StartDate: date
     ExpiryDate: date
     AuthorizedWorkspaces: int = 0
     AuthorizedUsers: int = 0
+    ActualWorkspaces: int = 0  # Field for tracking existing workspaces
+    ActualUsers: int = 0  # Field for tracking existing users
     Notes: Optional[str] = None
 
 
@@ -426,6 +427,11 @@ class DashboardSummary(BaseModel):
     RecentLicenses: List[LicenseInfo]
     UpcomingRenewals: List[LicenseInfo]
     RecentDeployments: List[DeploymentRecordInfo]
+
+
+# Schema for License ID response
+class LicenseIdResponse(BaseModel):
+    licenseId: str
 
 
 # Token schema for authentication

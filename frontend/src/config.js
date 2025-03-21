@@ -23,7 +23,7 @@ const config = {
     name: '许可证管理系统',
     version: '1.0.0',
     locale: 'zh-CN',
-    copyright: `许可证管理系统 ©${new Date().getFullYear()} 由Codeium创建`,
+    copyright: `Dify 许可证管理系统 ©${new Date().getFullYear()} 由 Xuan 创建`,
   },
   
   // Deploy environments for dropdown selections

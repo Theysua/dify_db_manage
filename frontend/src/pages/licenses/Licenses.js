@@ -1,32 +1,31 @@
-import React, { useState, useEffect } from 'react';
-import { 
-  Table, 
-  Button, 
-  Space, 
-  Spin, 
-  Card, 
-  message, 
-  Form, 
-  Input,
-  Select,
-  DatePicker,
-  Row,
-  Col,
-  Modal,
-  Typography,
-  Tooltip,
-  Tag
-} from 'antd';
-import { 
-  SearchOutlined, 
-  PlusOutlined, 
-  EditOutlined, 
+import {
   DeleteOutlined,
-  EyeOutlined
+  EditOutlined,
+  EyeOutlined,
+  InfoCircleOutlined,
+  SearchOutlined
 } from '@ant-design/icons';
+import {
+  Button,
+  Card,
+  Col,
+  DatePicker,
+  Form,
+  Input,
+  message,
+  Modal,
+  Row,
+  Select,
+  Space,
+  Table,
+  Tag,
+  Tooltip,
+  Typography
+} from 'antd';
 import axios from 'axios';
-import { useNavigate } from 'react-router-dom';
 import moment from 'moment';
+import React, { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 const { Title } = Typography;
 const { Option } = Select;
@@ -168,40 +167,38 @@ const Licenses = () => {
     fetchLicenses(1, pageSize);
   };
 
-  const showModal = (licenseId = null) => {
-    setEditingLicenseId(licenseId);
-    
-    if (licenseId) {
-      // Get license details for editing
-      const license = licenses.find(lic => lic.LicenseID === licenseId);
-      if (license) {
-        licenseForm.setFieldsValue({
-          licenseId: license.LicenseID,
-          customerId: license.CustomerID,
-          salesRepId: license.SalesRepID,
-          resellerId: license.ResellerID,
-          productName: license.ProductName,
-          productVersion: license.ProductVersion,
-          licenseType: license.LicenseType,
-          orderDate: moment(license.OrderDate),
-          startDate: moment(license.StartDate),
-          expiryDate: moment(license.ExpiryDate),
-          authorizedWorkspaces: license.AuthorizedWorkspaces,
-          authorizedUsers: license.AuthorizedUsers,
-          notes: license.Notes
-        });
-      }
-    } else {
-      licenseForm.resetFields();
-      // Generate a new license ID suggestion (would be handled by backend in production)
-      const today = new Date();
-      const year = today.getFullYear();
-      const month = String(today.getMonth() + 1).padStart(2, '0');
-      const suggestedId = `ENT-${year}-${month}-`;
-      licenseForm.setFieldsValue({ licenseId: suggestedId });
+  const showModal = (licenseId) => {
+    if (!licenseId) {
+      message.info('请通过运营工作台创建新许可证');
+      return;
     }
     
-    setIsModalVisible(true);
+    setEditingLicenseId(licenseId);
+    
+    // Get license details for editing
+    const license = licenses.find(lic => lic.LicenseID === licenseId);
+    if (license) {
+      licenseForm.setFieldsValue({
+        licenseId: license.LicenseID,
+        customerId: license.CustomerID,
+        salesRepId: license.SalesRepID,
+        resellerId: license.ResellerID,
+        productName: "Dify Enterprise",
+        licenseType: license.LicenseType,
+        orderDate: moment(license.OrderDate),
+        startDate: moment(license.StartDate),
+        expiryDate: moment(license.ExpiryDate),
+        authorizedWorkspaces: license.AuthorizedWorkspaces,
+        authorizedUsers: license.AuthorizedUsers,
+        actualWorkspaces: license.ActualWorkspaces || 0,
+        actualUsers: license.ActualUsers || 0,
+        notes: license.Notes
+      });
+      
+      setIsModalVisible(true);
+    } else {
+      message.error('无法找到该许可证的详细信息');
+    }
   };
 
   const handleCancel = () => {
@@ -213,37 +210,33 @@ const Licenses = () => {
     try {
       const values = await licenseForm.validateFields();
       
+      // We don't allow modifying the license ID
       const licenseData = {
-        LicenseID: values.licenseId,
         CustomerID: values.customerId,
         SalesRepID: values.salesRepId,
         ResellerID: values.resellerId,
-        ProductName: values.productName,
-        ProductVersion: values.productVersion,
+        ProductName: 'Dify Enterprise',
         LicenseType: values.licenseType,
         OrderDate: values.orderDate.format('YYYY-MM-DD'),
         StartDate: values.startDate.format('YYYY-MM-DD'),
         ExpiryDate: values.expiryDate.format('YYYY-MM-DD'),
         AuthorizedWorkspaces: values.authorizedWorkspaces,
         AuthorizedUsers: values.authorizedUsers,
+        ActualWorkspaces: values.actualWorkspaces,
+        ActualUsers: values.actualUsers,
         Notes: values.notes
       };
       
+      // Only update is allowed - no creation
       if (editingLicenseId) {
-        // Update
         await axios.put(`/api/v1/licenses/${editingLicenseId}`, licenseData);
         message.success('许可证更新成功');
-      } else {
-        // Create
-        await axios.post('/api/v1/licenses', licenseData);
-        message.success('许可证创建成功');
+        setIsModalVisible(false);
+        fetchLicenses(currentPage, pageSize);
       }
-      
-      setIsModalVisible(false);
-      fetchLicenses(currentPage, pageSize);
     } catch (error) {
-      console.error('Failed to submit license:', error);
-      message.error(editingLicenseId ? '更新许可证失败' : '创建许可证失败');
+      console.error('Failed to update license:', error);
+      message.error('更新许可证失败');
     }
   };
 
@@ -309,6 +302,7 @@ const Licenses = () => {
       title: '产品',
       dataIndex: 'ProductName',
       key: 'ProductName',
+      render: () => 'Dify Enterprise',
     },
     {
       title: '许可类型',
@@ -326,9 +320,26 @@ const Licenses = () => {
       key: 'ExpiryDate',
     },
     {
+      title: '授权工作区',
+      dataIndex: 'AuthorizedWorkspaces',
+      key: 'AuthorizedWorkspaces',
+    },
+    {
+      title: '实际工作区',
+      dataIndex: 'ActualWorkspaces',
+      key: 'ActualWorkspaces',
+      render: (text) => text || 0,
+    },
+    {
       title: '授权用户数',
       dataIndex: 'AuthorizedUsers',
       key: 'AuthorizedUsers',
+    },
+    {
+      title: '实际用户数',
+      dataIndex: 'ActualUsers',
+      key: 'ActualUsers',
+      render: (text) => text || 0,
     },
     {
       title: '部署状态',
@@ -377,14 +388,16 @@ const Licenses = () => {
   return (
     <div className="licenses-container">
       <div className="page-header">
-        <Title level={2}>许可证管理</Title>
-        <Button 
-          type="primary" 
-          icon={<PlusOutlined />} 
-          onClick={() => showModal()}
-        >
-          新建许可证
-        </Button>
+        <Title level={2}>许可证查询与管理</Title>
+        <Tooltip title="请在运营工作台创建新许可证">
+          <Button 
+            type="default" 
+            icon={<InfoCircleOutlined />} 
+            onClick={() => navigate('/operations')}
+          >
+            前往运营工作台
+          </Button>
+        </Tooltip>
       </div>
       
       <Card className="search-form">
@@ -465,7 +478,7 @@ const Licenses = () => {
       </Card>
 
       <Modal
-        title={editingLicenseId ? "编辑许可证" : "创建新许可证"}
+        title="编辑许可证"
         open={isModalVisible}
         onOk={handleSubmit}
         onCancel={handleCancel}
@@ -482,9 +495,9 @@ const Licenses = () => {
               <Form.Item
                 name="licenseId"
                 label="许可证ID"
-                rules={[{ required: true, message: '请输入许可证ID' }]}
+                tooltip="许可证ID不可修改"
               >
-                <Input disabled={!!editingLicenseId} placeholder="例如: ENT-2025-001" />
+                <Input disabled={true} placeholder="许可证ID不可修改" style={{ backgroundColor: '#f5f5f5' }} />
               </Form.Item>
             </Col>
             <Col span={12}>
@@ -530,21 +543,17 @@ const Licenses = () => {
           </Row>
           
           <Row gutter={16}>
-            <Col span={12}>
+            <Col span={24}>
               <Form.Item
                 name="productName"
                 label="产品名称"
-                rules={[{ required: true, message: '请输入产品名称' }]}
+                initialValue="Dify Enterprise"
               >
-                <Input placeholder="输入产品名称" />
-              </Form.Item>
-            </Col>
-            <Col span={12}>
-              <Form.Item
-                name="productVersion"
-                label="产品版本"
-              >
-                <Input placeholder="输入产品版本" />
+                <Input 
+                  placeholder="Dify Enterprise" 
+                  disabled={true} 
+                  style={{ backgroundColor: '#f5f5f5' }}
+                />
               </Form.Item>
             </Col>
           </Row>
@@ -613,6 +622,29 @@ const Licenses = () => {
                 rules={[{ type: 'number', min: 0, message: '不能小于0' }]}
               >
                 <Input type="number" placeholder="输入授权用户数量" />
+              </Form.Item>
+            </Col>
+          </Row>
+
+          <Row gutter={16}>
+            <Col span={12}>
+              <Form.Item
+                name="actualWorkspaces"
+                label="实际工作区"
+                rules={[{ type: 'number', min: 0, message: '不能小于0' }]}
+                initialValue={0}
+              >
+                <Input type="number" placeholder="输入实际工作区数量" />
+              </Form.Item>
+            </Col>
+            <Col span={12}>
+              <Form.Item
+                name="actualUsers"
+                label="实际用户"
+                rules={[{ type: 'number', min: 0, message: '不能小于0' }]}
+                initialValue={0}
+              >
+                <Input type="number" placeholder="输入实际用户数量" />
               </Form.Item>
             </Col>
           </Row>
