@@ -1,0 +1,105 @@
+import React, { useState } from 'react';
+import { Layout, Menu, theme } from 'antd';
+import { Outlet, useNavigate, useLocation } from 'react-router-dom';
+import {
+  DashboardOutlined,
+  KeyOutlined,
+  RocketOutlined,
+  TeamOutlined,
+  ToolOutlined,
+  UserOutlined,
+} from '@ant-design/icons';
+
+const { Header, Content, Footer, Sider } = Layout;
+
+const MainLayout = () => {
+  const [collapsed, setCollapsed] = useState(false);
+  const navigate = useNavigate();
+  const location = useLocation();
+  
+  const {
+    token: { colorBgContainer },
+  } = theme.useToken();
+
+  const menuItems = [
+    {
+      key: '/',
+      icon: <DashboardOutlined />,
+      label: '仪表盘',
+    },
+    {
+      key: '/licenses',
+      icon: <KeyOutlined />,
+      label: '许可证管理',
+    },
+    {
+      key: '/deployments',
+      icon: <RocketOutlined />,
+      label: '部署管理',
+    },
+    {
+      key: '/customers',
+      icon: <UserOutlined />,
+      label: '客户管理',
+    },
+    {
+      key: '/engineers',
+      icon: <ToolOutlined />,
+      label: '工程师管理',
+    },
+  ];
+
+  const getSelectedKeys = () => {
+    const path = location.pathname;
+    for (const item of menuItems) {
+      if (path === item.key || path.startsWith(item.key + '/')) {
+        return [item.key];
+      }
+    }
+    return ['/'];
+  };
+
+  return (
+    <Layout style={{ minHeight: '100vh' }}>
+      <Sider collapsible collapsed={collapsed} onCollapse={setCollapsed}>
+        <div className="logo">许可管理</div>
+        <Menu
+          theme="dark"
+          mode="inline"
+          selectedKeys={getSelectedKeys()}
+          items={menuItems}
+          onClick={({ key }) => navigate(key)}
+        />
+      </Sider>
+      <Layout className="site-layout">
+        <Header
+          style={{
+            padding: 0,
+            background: colorBgContainer,
+          }}
+        >
+          <div className="logo" style={{ color: 'black', width: 200 }}>
+            许可证管理系统
+          </div>
+        </Header>
+        <Content style={{ margin: '0 16px' }}>
+          <div
+            style={{
+              padding: 24,
+              minHeight: 360,
+              background: colorBgContainer,
+              marginTop: 16,
+            }}
+          >
+            <Outlet />
+          </div>
+        </Content>
+        <Footer style={{ textAlign: 'center' }}>
+          许可证管理系统 ©{new Date().getFullYear()} 由Codeium创建
+        </Footer>
+      </Layout>
+    </Layout>
+  );
+};
+
+export default MainLayout;
