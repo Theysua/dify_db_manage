@@ -28,7 +28,7 @@ function App() {
             <Route index element={<Dashboard />} />
             <Route path="licenses">
               <Route index element={<Licenses />} />
-              <Route path=":id" element={<LicenseDetail />} />
+              <Route path=":licenseId" element={<LicenseDetail />} />
             </Route>
             <Route path="deployments">
               <Route index element={<Deployments />} />

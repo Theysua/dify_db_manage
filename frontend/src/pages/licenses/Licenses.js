@@ -23,9 +23,10 @@ import {
   Typography
 } from 'antd';
 import axios from 'axios';
+import LicenseAlerts from '../../components/license/LicenseAlerts';
 import moment from 'moment';
 import React, { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 
 const { Title } = Typography;
 const { Option } = Select;
@@ -291,7 +292,7 @@ const Licenses = () => {
       title: '许可证ID',
       dataIndex: 'LicenseID',
       key: 'LicenseID',
-      render: (text) => <a onClick={() => navigate(`/licenses/${text}`)}>{text}</a>,
+      render: (text) => <a href={`/licenses/${text}`}>{text}</a>,
     },
     {
       title: '客户',
