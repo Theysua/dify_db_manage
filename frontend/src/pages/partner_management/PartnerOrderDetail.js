@@ -26,7 +26,7 @@ import {
   EditOutlined,
   ExclamationCircleOutlined
 } from '@ant-design/icons';
-import axios from 'axios';
+import api from '../../services/api';
 import { API_BASE_URL } from '../../services/config';
 
 const { Title, Text } = Typography;
@@ -48,7 +48,7 @@ const PartnerOrderDetail = () => {
     const fetchOrderDetails = async () => {
       setLoading(true);
       try {
-        const response = await axios.get(`${API_BASE_URL}/admin/orders/${orderId}`);
+        const response = await api.get(`/admin/orders/${orderId}`);
         setOrder(response.data);
       } catch (error) {
         console.error('Error fetching order details:', error);
@@ -67,7 +67,7 @@ const PartnerOrderDetail = () => {
   const handleStatusUpdate = async (values) => {
     setSubmitting(true);
     try {
-      const response = await axios.put(`${API_BASE_URL}/admin/orders/${orderId}/status`, {
+      const response = await api.put(`/admin/orders/${orderId}/status`, {
         status: values.status,
         comments: values.comments
       });
