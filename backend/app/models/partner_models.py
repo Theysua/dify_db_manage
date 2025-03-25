@@ -22,45 +22,41 @@ class Partner(Base):
     created_at = Column(DateTime, default=func.now())
     updated_at = Column(DateTime, default=func.now(), onupdate=func.now())
     
-    # Relationships
-    orders = relationship("Order", back_populates="partner", cascade="all, delete-orphan")
+    # Note: orders relationship removed since orders now reference customers, not partners
 
 
 class Order(Base):
     __tablename__ = "orders"
     
-    order_id = Column(Integer, primary_key=True, index=True)
-    partner_id = Column(Integer, ForeignKey("partners.partner_id", ondelete="CASCADE"), nullable=False)
+    order_id = Column(String(50), primary_key=True, index=True)
+    customer_id = Column(Integer, ForeignKey("customers.customer_id", ondelete="CASCADE"), nullable=False)
     order_number = Column(String(50), unique=True, nullable=False)
     order_date = Column(Date, nullable=False, default=func.current_date())
-    agreement_acknowledged = Column(Boolean, default=False, nullable=False)
-    agreement_date = Column(DateTime)
     total_amount = Column(Float, nullable=False)
-    status = Column(Enum('PENDING', 'APPROVED', 'REJECTED', 'COMPLETED', name='order_status_enum'), default='PENDING')
+    status = Column(Enum('DRAFT', 'CONFIRMED', 'CANCELED', name='order_status_enum'), default='DRAFT')
     notes = Column(Text)
     created_at = Column(DateTime, default=func.now())
     updated_at = Column(DateTime, default=func.now(), onupdate=func.now())
     
     # Relationships
-    partner = relationship("Partner", back_populates="orders")
+    # Note: This relationship doesn't exist since customer_id now references customers table
+    # partner = relationship("Partner", back_populates="orders", foreign_keys=[customer_id])
     order_items = relationship("OrderItem", back_populates="order", cascade="all, delete-orphan")
 
 
 class OrderItem(Base):
     __tablename__ = "order_items"
     
-    item_id = Column(Integer, primary_key=True, index=True)
-    order_id = Column(Integer, ForeignKey("orders.order_id", ondelete="CASCADE"), nullable=False)
-    product_name = Column(String(100), nullable=False, default="Dify Enterprise")
-    license_type = Column(String(50), nullable=False)
-    quantity = Column(Integer, nullable=False, default=1)
+    order_item_id = Column(Integer, primary_key=True, index=True)  # Correct column name
+    order_id = Column(String(50), ForeignKey("orders.order_id", ondelete="CASCADE"), nullable=False)
+    product_id = Column(String(50), nullable=False)  # Added missing column
+    product_name = Column(String(100), nullable=False)
+    quantity = Column(Integer, nullable=False)
+    unit = Column(String(20))  # Added missing column
     unit_price = Column(Float, nullable=False)
-    total_price = Column(Float, nullable=False)
-    license_duration_years = Column(Integer, nullable=False, default=1)
-    tax_rate = Column(Float, default=0.03)  # Default 3% tax rate
-    end_user_name = Column(String(100), nullable=False)
+    subtotal = Column(Float, nullable=False)  # Correct column name (subtotal instead of total_price)
+    end_user_name = Column(String(100))
     created_at = Column(DateTime, default=func.now())
-    updated_at = Column(DateTime, default=func.now(), onupdate=func.now())
     
     # Relationships
     order = relationship("Order", back_populates="order_items")

@@ -10,10 +10,9 @@ class PartnerStatusEnum(str, Enum):
 
 
 class OrderStatusEnum(str, Enum):
-    PENDING = "PENDING"
-    APPROVED = "APPROVED"
-    REJECTED = "REJECTED"
-    COMPLETED = "COMPLETED"
+    DRAFT = "DRAFT"
+    CONFIRMED = "CONFIRMED"
+    CANCELED = "CANCELED"
 
 
 # Base schemas
@@ -29,23 +28,20 @@ class PartnerBase(BaseModel):
 
 
 class OrderItemBase(BaseModel):
+    ProductId: Optional[str] = None  # Optional as we'll generate one if not provided
     ProductName: str = "Dify Enterprise"
-    LicenseType: str
     Quantity: int = 1
+    Unit: str = "license"  # Default unit for software licenses
     UnitPrice: float
-    TotalPrice: float
-    LicenseDurationYears: int = 1
-    TaxRate: float = 0.03
+    TotalPrice: float  # We'll still use TotalPrice in the schema but map it to subtotal in the model
     EndUserName: str
 
 
 class OrderBase(BaseModel):
     OrderNumber: str
     OrderDate: date = Field(default_factory=date.today)
-    AgreementAcknowledged: bool = False
-    AgreementDate: Optional[datetime] = None
     TotalAmount: float
-    Status: OrderStatusEnum = OrderStatusEnum.PENDING
+    Status: OrderStatusEnum = OrderStatusEnum.DRAFT
     Notes: Optional[str] = None
 
 
@@ -91,8 +87,6 @@ class OrderItemUpdate(BaseModel):
 class OrderUpdate(BaseModel):
     OrderNumber: Optional[str] = None
     OrderDate: Optional[date] = None
-    AgreementAcknowledged: Optional[bool] = None
-    AgreementDate: Optional[datetime] = None
     TotalAmount: Optional[float] = None
     Status: Optional[OrderStatusEnum] = None
     Notes: Optional[str] = None
@@ -111,17 +105,17 @@ class PartnerInfo(PartnerBase):
 
 
 class OrderItemInfo(OrderItemBase):
-    ItemId: int
-    OrderId: int
+    ItemId: int  # This will be mapped from order_item_id
+    OrderId: str  # Updated to string to match our model
     CreatedAt: datetime
-    UpdatedAt: datetime
     
     class Config:
         orm_mode = True
+        from_attributes = True  # Updated for Pydantic v2
 
 
 class OrderInfo(OrderBase):
-    OrderId: int
+    OrderId: str
     PartnerID: int
     CreatedAt: datetime
     UpdatedAt: datetime
@@ -130,6 +124,7 @@ class OrderInfo(OrderBase):
     
     class Config:
         orm_mode = True
+        from_attributes = True  # Updated for Pydantic v2
 
 
 # Auth schemas
