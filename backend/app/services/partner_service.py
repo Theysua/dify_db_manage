@@ -281,12 +281,13 @@ class OrderService:
         return [OrderService._order_to_schema(order, partner_id) for order in orders]
     
     @staticmethod
-    def get_order_by_id(db: Session, order_id: int, partner_id: Optional[int] = None) -> Optional[Order]:
-        """Get order by ID, optionally filtered by partner ID"""
-        query = db.query(Order).filter(Order.order_id == order_id)
-        if partner_id:
-            query = query.filter(Order.customer_id == partner_id)
-        return query.first()
+    def get_order_by_id(db: Session, order_id: str, partner_id: Optional[int] = None) -> Optional[Order]:
+        """Get order by ID
+        
+        Note: We've removed the filtering by partner_id to allow partners to see all orders,
+        similar to how sales reps can see all customer information.
+        """
+        return db.query(Order).filter(Order.order_id == order_id).first()
     
     @staticmethod
     def update_order_status(db: Session, order_id: str, partner_id: int, status: str) -> Optional[schemas.OrderInfo]:

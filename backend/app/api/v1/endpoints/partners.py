@@ -86,12 +86,15 @@ def get_partner_orders(
 
 @router.get("/orders/{order_id}", response_model=schemas.OrderInfo)
 def get_order_details(
-    order_id: int,
+    order_id: str,
     db: Session = Depends(get_db),
     current_partner: deps.TokenData = Depends(deps.get_current_partner)
 ):
     """Get order details"""
-    order = OrderService.get_order_by_id(db, order_id, current_partner.partner_id)
+    # We no longer filter by partner_id to allow partners to see all orders,
+    # similar to how sales reps can see all customer information
+    order = OrderService.get_order_by_id(db, order_id)
     if not order:
         raise HTTPException(status_code=404, detail="Order not found")
+    # Still need partner_id for the schema conversion
     return OrderService._order_to_schema(order, current_partner.partner_id)
