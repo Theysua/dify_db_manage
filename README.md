@@ -1,14 +1,14 @@
-# Dify Enterprise License Management System
+# Dify Sales Database Management System (DSMS)
 
-![Dify Enterprise](https://path.to/logo.png)
+![Dify Sales Management System](https://path.to/logo.png)
 
-A comprehensive license lifecycle management platform for Dify Enterprise products.
+A comprehensive enterprise license lifecycle management platform designed for Dify enterprise products.
 
-> **最新更新 (2025-03-22)**: 正在解决销售代表和工程师管理模块的分页问题。新增了详细的[开发者指南](./DEVELOPER_GUIDE.md)。
+> **Latest Update (2025-03-25)**: Fixed order API issues, allowing partners to view all order information. Enhanced data access permissions for sales representatives and engineers.
 
-## Project Overview
+## System Overview
 
-Dify Enterprise License Management System (DELMS) is a license management system designed for enterprise customers. It builds a complete license lifecycle tracking and management process with "License ID" as the core business entity. The system ensures a clear hierarchical relationship between customers and licenses, precise role-based access control, and standardized business processes.
+Dify Sales Database Management System is a license management system designed for enterprise customers. It builds a complete license lifecycle tracking and management process with "License ID" as the core business entity. The system ensures a clear hierarchical relationship between customers and licenses, precise role-based access control, and standardized business processes.
 
 ## Key Features
 
@@ -28,12 +28,19 @@ The system fully tracks the following states of licenses:
 - **License Management**: Create, update, view licenses with complete change tracking
 - **Customer Management**: Maintain customer information and their associated licenses
 - **Sales Representative Management**: Manage sales representatives and track their performance
-- **Reseller Management**: Track partners and their associated licenses
+- **Partner Management**: Track partners and their related orders
+- **Reseller Management**: Manage resellers and their related licenses
 - **Purchase Records**: Record all transactions related to licenses, including new purchases, renewals, and expansions
 - **Deployment Records**: Monitor the deployment process of licenses, including engineer assignments
 - **Engineer Management**: Manage factory engineers responsible for deployments
 - **Performance Tracking**: Track sales and deployment metrics with detailed statistics
 - **Alert System**: Automatic alerts for licenses that are about to expire or are being overused
+
+### Enhanced Access Control
+
+- **Sales Representatives**: Now can view all customer information, licenses, deployment records, and engineer information
+- **Engineers**: Now can view all deployment records, sales representative information, customers, and licenses
+- **Partners**: Now can view all order details (not limited to orders they created)
 
 ## Technology Stack
 
@@ -97,7 +104,20 @@ Below are the core data models and their relationships in the system:
 +---------------+  +-------------+  +--------------+
 ```
 
-### License Lifecycle Flow
+```
++-------------+     +-------------+
+|             |     |             |
+|   Partner   |---->|    Order    |
+|             |     |             |
++-------------+     +------+------+
+                           |
+                           |
+                    +------v------+
+                    |             |
+                    |  OrderItem  |
+                    |             |
+                    +-------------+
+```
 
 ```
 +----------+     +-----------+     +--------+     +---------+     +--------+
@@ -106,6 +126,128 @@ Below are the core data models and their relationships in the system:
 |          |     |           |     |        |     |         |     |        |
 +----------+     +-----------+     +--------+     +---------+     +--------+
 ```
+
+## Installation Guide
+
+### Prerequisites
+
+- Python 3.8+
+- MySQL 5.7+
+- Node.js 14+
+- npm or yarn
+
+### Backend Setup
+
+1. Clone the repository
+   ```bash
+   git clone https://github.com/Theysua/dify_db_manage.git
+   cd dify_db_manage
+   ```
+
+2. Create and activate a virtual environment
+   ```bash
+   cd backend
+   python -m venv venv
+   source venv/bin/activate  # On Windows: .\venv\Scripts\activate
+   ```
+
+3. Install dependencies
+   ```bash
+   pip install -r requirements.txt
+   ```
+
+4. Configure environment variables
+   ```bash
+   cp .env.example .env  # Then edit .env with your database credentials
+   ```
+
+5. Initialize the database
+   ```bash
+   alembic upgrade head
+   ```
+
+6. Create test data (optional)
+   ```bash
+   python -m app.db.create_mock_data
+   ```
+
+7. Start the backend server
+   ```bash
+   uvicorn app.main:app --reload
+   ```
+
+### Frontend Setup
+
+1. Navigate to the frontend directory
+   ```bash
+   cd frontend
+   ```
+
+2. Install dependencies
+   ```bash
+   npm install
+   # or
+   yarn install
+   ```
+
+3. Configure the API URL
+   ```bash
+   cp .env.example .env  # Then edit .env with your API URL
+   ```
+
+4. Start the development server
+   ```bash
+   npm start
+   # or
+   yarn start
+   ```
+
+5. Access the application at http://localhost:3000
+
+## API Reference
+
+### Authentication
+
+#### Admin Authentication
+- `POST /api/v1/auth/login`: Admin login
+- `GET /api/v1/auth/me`: Get current admin information
+
+#### Partner Authentication
+- `POST /api/v1/partners/login`: Partner login
+- `GET /api/v1/partners/me`: Get current partner information
+- `PUT /api/v1/partners/me`: Update current partner information
+
+### Customer Management
+
+- `GET /api/v1/customers`: Get customer list
+- `POST /api/v1/customers`: Create new customer (admin only)
+- `GET /api/v1/customers/{customer_id}`: Get specific customer details
+- `PUT /api/v1/customers/{customer_id}`: Update customer information (admin only)
+- `DELETE /api/v1/customers/{customer_id}`: Delete customer (admin only)
+
+### License Management
+
+- `GET /api/v1/licenses`: Get license list
+- `POST /api/v1/licenses`: Create new license (admin only)
+- `GET /api/v1/licenses/{license_id}`: Get specific license details
+- `PUT /api/v1/licenses/{license_id}`: Update license information (admin only)
+- `DELETE /api/v1/licenses/{license_id}`: Delete license (admin only)
+
+### Order Management
+
+- `GET /api/v1/partners/orders`: Get partner's order list
+- `POST /api/v1/partners/orders`: Create new order
+- `GET /api/v1/partners/orders/{order_id}`: Get specific order details
+
+### Additional Endpoints
+
+- Sales Representatives: `/api/v1/sales_reps`
+- Resellers: `/api/v1/resellers`
+- Purchase Records: `/api/v1/purchases`
+- Deployment Records: `/api/v1/deployments`
+- Factory Engineers: `/api/v1/engineers`
+
+Complete API documentation is available at http://localhost:8000/docs when running the backend server.
 
 ## Project Structure
 
@@ -175,290 +317,100 @@ dify_sales_db/
 └── README.md
 ```
 
-## License Management Features
+## User Guide
 
-### License Creation and Automated ID Generation
+### User Roles and Permissions
 
-The system generates unique license IDs based on a predefined format to ensure easy tracking and identification. The license ID format incorporates elements such as product type, creation date, and unique identifiers:
+#### Admin
+- Full control over the system
+- Can create, update, and delete all resources
+- Can manage users and their permissions
 
+#### Sales Representative
+- Can view all customer information
+- Can view all license information
+- Can view all deployment records
+- Can view engineer information
+- Can create purchase records
+
+#### Factory Engineer
+- Can view all deployment records
+- Can view sales representative information
+- Can view customer and license information
+- Can update deployment status
+
+#### Partner
+- Can create and view orders
+- Can view their own profile
+- Can update their contact information
+
+### Common Workflows
+
+#### License Management Workflow
+
+1. Admin creates a customer record
+2. Admin or sales rep creates a license for the customer
+3. Admin assigns engineer for deployment
+4. Engineer updates deployment status
+5. Sales rep or admin records any changes or renewals
+
+#### Order Management Workflow
+
+1. Partner logs in to the system
+2. Partner creates a new order with details
+3. Partner can view all orders and their status
+4. Admin or authorized staff processes the order
+
+## Development Guide
+
+### Adding New Features
+
+1. Define the requirements and data model
+2. Add necessary models in the appropriate model file
+3. Create schemas in the schemas directory
+4. Implement business logic in the services directory
+5. Create API endpoints in the endpoints directory
+6. Update the frontend to use the new endpoints
+
+### Testing
+
+```bash
+# Backend API testing
+cd backend
+python test_order_api.py
+
+# Frontend testing (if configured)
+cd frontend
+npm test
 ```
-Format: XXX-YYYYMM-NNNNNN
 
-Where:
-- XXX: Product type (ENT for Enterprise, PRO for Professional, etc.)
-- YYYYMM: Year and month of creation
-- NNNNNN: Unique identifier
-```
+## Known Issues and Limitations
 
-Example: `ENT-202503-123456`
-
-### License Lifecycle Visualization
-
-A comprehensive timeline view for each license shows its complete history:
-
-- Initial creation and order date
-- Deployment status and date
-- Current usage metrics (workspaces/users)
-- Purchase history, including renewals and upgrades
-- License expiration date
-
-### Usage Monitoring and Alerts
-
-The system continuously monitors license usage and provides alerts for:
-
-- Licenses approaching expiration (30, 60, 90 days)
-- Licenses with workspace/user counts exceeding authorized limits
-- Inactive licenses (no usage recorded)
-- Irregular usage patterns
-
-### Role-Based Access Control
-
-The system implements a precise role-based access control mechanism:
-
-- **Sales Representatives**: Manage customer and license information, create new licenses
-- **Deployment Engineers**: Handle deployment and configuration of licensed systems
-- **Channel Partners**: View and manage licenses associated with their customers
-- **System Administrators**: Full access to all system functions
-
-## Latest Updates and Known Issues
-
-### Recent Updates (2025-03-22)
-
-- **分页问题修复进展** (❗正在进行中): 正在解决销售代表和工程师列表的分页问题。
-  - 已尝试更新端点返回分页信息的方式。
-  - 已修改API URL格式，确保以斜杠结尾。
-  - 已引入页面大小选项和调试信息。
-  - 当前状态: 仍在解决中，需要进一步调查和修改。
-
-- **新增开发者指南**: 创建了详细的[DEVELOPER_GUIDE.md](./DEVELOPER_GUIDE.md)，包含：
-  - 前端和后端代码的最佳实践
-  - 分页和数据过滤的实现指南
-  - 常见问题及解决方案
-  - 测试和部署策略
-  - 未来开发计划
-
-### Known Issues
-
-- **分页功能问题** (❗高优先级): 销售代表和工程师列表的分页功能仍然存在问题，包括：
+- **分页功能问题**: 销售代表和工程师列表的分页功能存在问题，包括：
   - 切换页面时，数据可能不会正确加载
   - 总页数和总记录数显示可能不准确
   - 每页记录数量变更后可能出现不一致的情况
   - 当前进展: 已经做了初步修复尝试，但仍需要进一步解决
 
-- **资源占用统计**: 工程师仪表板有时候显示的资源占用统计数据延迟。
-- **搜索性能**: 当数据量大时，高级搜索功能可能会受影响。
-- **导出功能**: 大量数据导出为Excel格式时可能遇到性能问题。
+- **权限控制优化**: 虽然已经放宽了销售代表和工程师的访问权限，但可能需要更精细的权限控制机制
 
-## Getting Started
+## Troubleshooting
 
-### Prerequisites
+### API Error Responses
 
-- Python 3.8+
-- MySQL 5.7+ or MariaDB
+- **401 Unauthorized**: Authentication issue, check your credentials or token
+- **403 Forbidden**: Insufficient permissions for the requested operation
+- **404 Not Found**: The requested resource does not exist
+- **422 Unprocessable Entity**: Invalid request parameters or payload
 
-### Installation
+### Common Solutions
 
-#### Backend Setup
-
-1. Clone the repository:
-   ```bash
-   git clone <repository-url>
-   cd dify_sales_db
-   ```
-
-2. Create and activate a virtual environment:
-   ```bash
-   python -m venv venv
-   source venv/bin/activate  # On Windows: venv\Scripts\activate
-   ```
-
-3. Install backend dependencies:
-   ```bash
-   pip install -r backend/requirements.txt
-   ```
-
-4. Configure the database:
-   ```bash
-   # Create MySQL database
-   mysql -u root -p
-   > CREATE DATABASE dify_sales;
-   > EXIT;
-   ```
-
-5. Update environment variables (if needed):
-   - Create a `.env` file in the backend directory
-   - Add any configuration overrides (database credentials, etc.)
-
-6. Start the backend server:
-   ```bash
-   cd backend
-   uvicorn app.main:app --reload
-   ```
-
-7. Access the API documentation at `http://localhost:8000/api/v1/docs`
-
-#### Frontend Setup
-
-1. Make sure Node.js (v16+) is installed:
-   ```bash
-   node -v
-   ```
-
-2. Install frontend dependencies:
-   ```bash
-   cd frontend
-   npm install
-   ```
-
-3. Start the development server:
-   ```bash
-   npm start
-   ```
-
-4. Access the frontend application at `http://localhost:3000`
-
-Alternatively, you can use the setup script:
-```bash
-cd frontend
-chmod +x setup.sh  # Make executable if needed
-./setup.sh
-npm start
-```
-
-## API Documentation
-
-The API documentation is automatically generated using Swagger UI. You can access it at `/api/v1/docs` when the application is running.
-
-### Key Endpoints
-
-- `/api/v1/licenses`: Manage licenses
-- `/api/v1/customers`: Manage customers
-- `/api/v1/sales-reps`: Manage sales representatives
-- `/api/v1/resellers`: Manage resellers
-- `/api/v1/purchases`: Manage purchase records
-- `/api/v1/deployments`: Manage deployment records
-- `/api/v1/engineers`: Manage factory engineers
-
-## License Management Process
-
-The system supports the complete lifecycle of a license:
-
-1. **Creation**: Sales reps create new license records
-2. **Purchase**: Initial purchase record is created
-3. **Deployment**: System is deployed for the customer
-4. **Monitoring**: Usage and status are tracked
-5. **Renewal/Expansion**: Additional purchase records update the license
-6. **Expiration/Termination**: License status is updated accordingly
-
-## Development
-
-### Backend Development
-
-#### Database Migrations
-
-The project uses Alembic for database migrations:
-
-```bash
-# Create a new migration
-alembic revision --autogenerate -m "Description of changes"
-
-# Apply migrations
-alembic upgrade head
-```
-
-#### Running Backend Tests
-
-```bash
-pytest
-```
-
-### Frontend Development
-
-#### Component Structure
-
-The frontend uses a component-based architecture with the following key components:
-
-- **Layout Components**: Page structure and navigation
-- **Form Components**: Reusable form elements for data entry
-- **Table Components**: Data display with sorting and filtering
-- **Chart Components**: Visualizations for performance metrics
-- **Modal Components**: Dialog boxes for confirmation and detailed views
-
-The frontend follows a modular file structure:
-- `layouts`: Page layouts and navigation components
-- `pages`: Main page components organized by domain entity
-- `components`: Reusable UI components
-- `services`: API service clients
-- `utils`: Utility functions and helpers
-
-## Key Screens
-
-### License Management Dashboard
-
-The central dashboard provides an overview of all licenses with important metrics:
-
-- Total active/inactive licenses
-- Licenses by status (active, expired, etc.)
-- Licenses about to expire in the next 30/60/90 days
-- License distribution by product type
-- Usage metrics across customers
-
-### License Detail View
-
-The license detail view provides comprehensive information about a specific license:
-
-- License identifiers and associated customer information
-- Lifecycle timeline showing all key events
-- Usage metrics with visual indicators for overuse
-- Purchase and renewal history
-- Deployment records and status
-- Change history log
-
-### Operations Center
-
-The operations center allows sales representatives to create and manage licenses:
-
-- License creation with automated ID generation
-- Customer association and information management
-- Product and license type selection
-- Initial authorization limits
-- Deployment scheduling
+- **Login Issues**: Verify username and password; check if user account is active
+- **Data Retrieval Problems**: Ensure the correct parameters are provided in API calls
+- **Order Creation Issues**: Verify that the order data format is correct and all required fields are provided
 
 ## Conclusion
 
-The Dify Enterprise License Management System provides a comprehensive solution for managing the entire lifecycle of software licenses. By centralizing license operations around the License ID, the system ensures clear tracking of all related information including customers, sales, procurement, channel partners, and deployments.
+The Dify Sales Database Management System provides a comprehensive solution for managing the entire lifecycle of enterprise licenses. By centralizing license operations around the License ID, the system ensures clear tracking of all related information, including customers, sales representatives, partners, and deployments.
 
-The system's focus on precise license lifecycle management - from creation through deployment, usage, renewal, and expiration - provides stakeholders with complete visibility into license status and usage patterns, enabling better decision-making and customer service.
-
-## Contact
-
-For questions or support, please contact:
-
-- Email: support@example.com
-- Website: https://example.com
-
-## Version History
-
-- **v1.0.0** - Initial release
-- **v1.1.0** - Added license lifecycle tracking
-- **v1.2.0** - Enhanced usage monitoring
-
-
-#### Adding New Features
-
-1. Create new API service methods in `src/services/api.js`
-2. Add new pages or components as needed
-3. Update the navigation in `MainLayout.js` if adding major sections
-
-#### Building for Production
-
-```bash
-cd frontend
-npm run build
-```
-
-The build files will be generated in the `build` directory and can be served using a static file server.
-
-## License
-
-[MIT License](LICENSE)
+With its enhanced access control features, the system enables better collaboration between sales representatives, engineers, and partners, while maintaining appropriate security boundaries for sensitive operations. The RESTful API design allows for easy integration with other systems and potential for future expansions.
