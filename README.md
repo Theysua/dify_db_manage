@@ -4,7 +4,7 @@
 
 A comprehensive enterprise license lifecycle management platform designed for Dify enterprise products.
 
-> **Latest Update (2025-03-25)**: Fixed order API issues, allowing partners to view all order information. Enhanced data access permissions for sales representatives and engineers.
+> **Latest Update (2025-03-25)**: Fixed partner order management functionality. Enhanced data access permissions for sales representatives and engineers. Resolved response validation errors in partner API endpoints.
 
 ## System Overview
 
@@ -38,9 +38,9 @@ The system fully tracks the following states of licenses:
 
 ### Enhanced Access Control
 
-- **Sales Representatives**: Now can view all customer information, licenses, deployment records, and engineer information
-- **Engineers**: Now can view all deployment records, sales representative information, customers, and licenses
-- **Partners**: Now can view all order details (not limited to orders they created)
+- **Sales Representatives**: Can view all customer information, licenses, deployment records, and engineer information
+- **Engineers**: Can view all deployment records, sales representative information, customers, and licenses
+- **Partners**: Can view their own orders and manage order details through a dedicated interface
 
 ## Technology Stack
 
@@ -325,6 +325,7 @@ dify_sales_db/
 - Full control over the system
 - Can create, update, and delete all resources
 - Can manage users and their permissions
+- Can view and manage all partner orders
 
 #### Sales Representative
 - Can view all customer information
@@ -332,17 +333,20 @@ dify_sales_db/
 - Can view all deployment records
 - Can view engineer information
 - Can create purchase records
+- Can view partner information
 
 #### Factory Engineer
 - Can view all deployment records
 - Can view sales representative information
 - Can view customer and license information
 - Can update deployment status
+- Can view sales representative information
 
 #### Partner
-- Can create and view orders
+- Can create and view their own orders
 - Can view their own profile
 - Can update their contact information
+- Can manage order items and check order status
 
 ### Common Workflows
 
@@ -357,9 +361,11 @@ dify_sales_db/
 #### Order Management Workflow
 
 1. Partner logs in to the system
-2. Partner creates a new order with details
-3. Partner can view all orders and their status
-4. Admin or authorized staff processes the order
+2. Partner creates a new order with detailed order items
+3. Partner can view their orders and check status
+4. Partner can add comments to orders
+5. Admin can view all partner orders
+6. Admin processes the order and updates its status
 
 ## Development Guide
 
@@ -394,6 +400,10 @@ npm test
 
 - **权限控制优化**: 虽然已经放宽了销售代表和工程师的访问权限，但可能需要更精细的权限控制机制
 
+- **合作伙伴订单关联**: 当前系统中订单主要关联到客户(Customer)而非合作伙伴(Partner)，未来需要重新设计关联查询方式
+
+- **多语言支持**: 系统界面已包含中文标签，但未完全国际化，需要完善多语言支持系统
+
 ## Troubleshooting
 
 ### API Error Responses
@@ -414,3 +424,47 @@ npm test
 The Dify Sales Database Management System provides a comprehensive solution for managing the entire lifecycle of enterprise licenses. By centralizing license operations around the License ID, the system ensures clear tracking of all related information, including customers, sales representatives, partners, and deployments.
 
 With its enhanced access control features, the system enables better collaboration between sales representatives, engineers, and partners, while maintaining appropriate security boundaries for sensitive operations. The RESTful API design allows for easy integration with other systems and potential for future expansions.
+
+## Appendix
+
+### Partner Management Module Details
+
+#### Partner Registration and Management
+
+The Partner Management module allows system administrators to register and manage partner organizations that resell or distribute Dify enterprise products. Key features include:
+
+- Partner profile creation and management
+- Status tracking (Active, Inactive, Pending, Suspended)
+- Region-based partner categorization
+- Partner-level classification
+
+#### Order Creation and Management
+
+Partners can create and manage orders through a dedicated interface:
+
+- **Create Order**: Partners can create new orders with multiple line items
+- **Order List**: View all orders with filtering by status
+- **Order Details**: View complete details of each order
+- **Order Status**: Track order progress (Draft, Confirmed, Canceled)
+
+#### Implementation Details
+
+- Partner authentication using JWT tokens
+- Secure access control to partner-specific data
+- Hierarchical relationship between partners and orders
+- Comprehensive data validation for order submission
+
+### Recent Feature Updates
+
+#### 2025-03-25: Partner Order Button Fix
+
+- Fixed an issue where the order button on the partner management page was not correctly navigating to the partner orders page
+- Resolved attribute naming inconsistencies between frontend and backend
+- Ensured proper integer type conversion for partner IDs in API requests
+- Fixed response validation errors in partner API endpoints
+
+#### 2025-03-18: Enhanced Access Control
+
+- Relaxed access restrictions for sales representatives and engineers
+- Added new dependency function `get_current_field_staff` to enhance permission handling
+- Updated API endpoint permission controls
