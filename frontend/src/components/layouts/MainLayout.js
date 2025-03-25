@@ -7,11 +7,14 @@ import {
   ControlOutlined,
   TeamOutlined,
   ShopOutlined,
-  ShoppingOutlined
+  ShoppingOutlined,
+  FunnelPlotOutlined,
+  SettingOutlined
 } from '@ant-design/icons';
 import { Layout, Menu, Button, message, theme } from 'antd';
 import React, { useState, useEffect } from 'react';
 import { Outlet, useLocation, useNavigate } from 'react-router-dom';
+import useAuth from '../../hooks/useAuth';
 
 const { Header, Content, Footer, Sider } = Layout;
 
@@ -20,6 +23,7 @@ const MainLayout = () => {
   const [openKeys, setOpenKeys] = useState(['/partner-management']);
   const navigate = useNavigate();
   const location = useLocation();
+  const { isAdmin } = useAuth();
   
   const {
     token: { colorBgContainer },
@@ -62,6 +66,33 @@ const MainLayout = () => {
       label: '运营工作台（新建许可证）',
     },
     {
+      key: '/leads',
+      icon: <FunnelPlotOutlined />,
+      label: '商机管理',
+      children: [
+        {
+          key: '/leads',
+          label: '商机列表',
+        },
+        {
+          key: '/leads/workbench',
+          label: '销售工作台',
+        },
+        // 只有管理员才能看到商机设置
+        ...((() => {
+          const adminStatus = isAdmin();
+          console.log('导航菜单中的管理员状态:', adminStatus);
+          return adminStatus ? [
+            {
+              key: '/leads/settings',
+              icon: <SettingOutlined />,
+              label: '商机设置',
+            }
+          ] : [];
+        })())
+      ]
+    },
+    {
       key: '/partner-management',
       icon: <ShopOutlined />,
       label: '合作伙伴管理',
@@ -82,6 +113,15 @@ const MainLayout = () => {
 
   const getSelectedKeys = () => {
     const path = location.pathname;
+    
+    // 精确匹配子菜单路径
+    if (path === '/leads/workbench') {
+      return ['/leads/workbench'];
+    }
+    
+    if (path === '/leads/settings') {
+      return ['/leads/settings'];
+    }
     
     // 首先检查子菜单项
     for (const item of menuItems) {

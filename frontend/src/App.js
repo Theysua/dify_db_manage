@@ -22,6 +22,12 @@ import EngineerDetail from './pages/engineers/EngineerDetail';
 import Operations from './pages/operations/Operations';
 import NotFound from './pages/NotFound';
 
+// 商机管理页面
+import LeadList from './pages/leads/LeadList';
+import LeadDetail from './pages/leads/LeadDetail';
+import LeadSettings from './pages/leads/LeadSettings';
+import SalesWorkbench from './pages/leads/SalesWorkbench';
+
 // Partner Pages
 import PartnerDashboard from './pages/partner/Dashboard';
 import PartnerOrderForm from './pages/partner/OrderForm';
@@ -55,22 +61,49 @@ const isPartnerAuthenticated = () => {
 
 // Protected route component for staff/admin pages
 const ProtectedRoute = ({ children, requiredRole = null }) => {
+  // 记录访问日志
+  console.log('当前路由权限检查:', {
+    requiredRole,
+    isLoggedIn: isAuthenticated(),
+    storedRole: localStorage.getItem('dify_user_role')
+  });
+  
+  // 验证登录状态
   if (!isAuthenticated()) {
+    console.log('用户未登录，重定向到登录页面');
     return <Navigate to="/login" replace />;
   }
   
   // 如果指定了所需角色，检查用户是否有该角色
   if (requiredRole) {
-    const userInfo = JSON.parse(localStorage.getItem('dify_user_info') || '{}');
-    const userRole = userInfo.role || '';
+    // 从lstorage获取用户角色
+    const storedRole = localStorage.getItem('dify_user_role');
     
-    // 检查用户角色是否匹配所需角色
-    // admin可以访问所有页面
-    if (userRole !== 'admin' && userRole !== requiredRole) {
-      return <Navigate to="/not-found" replace />;
+    // 从JSON获取用户角色
+    const userInfo = JSON.parse(localStorage.getItem('dify_user_info') || '{}');
+    const userRole = userInfo.role || userInfo.Role || '';
+    
+    console.log('角色校验详情:', {
+      requiredRole,
+      storedRole,
+      userObjectRole: userRole,
+      isAdmin: storedRole === 'admin' || userRole === 'admin'
+    });
+    
+    // 如果用户是管理员，可以访问所有页面
+    const isAdmin = storedRole === 'admin' || userRole === 'admin';
+    
+    // 如果不是管理员，则需要匹配特定角色
+    const matchesRequiredRole = storedRole === requiredRole || userRole === requiredRole;
+    
+    if (!isAdmin && !matchesRequiredRole) {
+      console.log('用户没有所需角色，显示 NotFound 组件');
+      // 不再重定向到 /not-found，而是直接显示 NotFound 组件
+      return <NotFound />;
     }
   }
   
+  // 权限检查通过，正常渲染组件
   return children;
 };
 
@@ -114,6 +147,12 @@ function App() {
               <Route path=":id" element={<ProtectedRoute><EngineerDetail /></ProtectedRoute>} />
             </Route>
             <Route path="operations" element={<ProtectedRoute><Operations /></ProtectedRoute>} />
+            <Route path="leads">
+              <Route index element={<ProtectedRoute><LeadList /></ProtectedRoute>} />
+              <Route path=":leadId" element={<ProtectedRoute><LeadDetail /></ProtectedRoute>} />
+              <Route path="settings" element={<ProtectedRoute requiredRole="admin"><LeadSettings /></ProtectedRoute>} />
+              <Route path="workbench" element={<ProtectedRoute><SalesWorkbench /></ProtectedRoute>} />
+            </Route>
             <Route path="partner-management">
               <Route path="orders" element={<ProtectedRoute><PartnerOrders /></ProtectedRoute>} />
               <Route path="orders/new" element={<ProtectedRoute><CreateOrder /></ProtectedRoute>} />

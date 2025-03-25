@@ -7,8 +7,29 @@ from app.api.v1.api import api_router
 from app.core.config import settings
 from app.db.database import engine, Base
 
-# Create tables if they don't exist
-Base.metadata.create_all(bind=engine)
+# 导入非商机相关的模型
+from app.models import models, user_models, partner_models
+
+# 先设置数据库初始化信息
+from sqlalchemy import inspect
+import logging
+
+# 日志配置
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
+
+try:
+    # 先检查数据库中已存在的表
+    inspector = inspect(engine)
+    existing_tables = inspector.get_table_names()
+    logger.info(f"Existing tables: {existing_tables}")
+    
+    # 创建非商机相关的表
+    logger.info("Creating non-lead related tables...")
+    Base.metadata.create_all(bind=engine, checkfirst=True)
+    logger.info("Database initialization completed successfully.")
+except Exception as e:
+    logger.error(f"Database initialization error: {str(e)}")
 
 app = FastAPI(
     title=settings.PROJECT_NAME,

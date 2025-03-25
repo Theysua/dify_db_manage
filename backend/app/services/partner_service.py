@@ -74,6 +74,11 @@ class PartnerService:
         return db.query(Partner).filter(Partner.username == username).first()
     
     @staticmethod
+    def get_all_partners(db: Session, skip: int = 0, limit: int = 100) -> List[Partner]:
+        """Get all partners with pagination"""
+        return db.query(Partner).offset(skip).limit(limit).all()
+    
+    @staticmethod
     def update_partner(db: Session, partner_id: int, partner_data: schemas.PartnerUpdate) -> Optional[Partner]:
         """Update partner information"""
         db_partner = PartnerService.get_partner_by_id(db, partner_id)

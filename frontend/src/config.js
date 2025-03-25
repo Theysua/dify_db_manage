@@ -3,7 +3,7 @@
  */
 const config = {
   // API base URL - used by services/api.js
-  apiBaseUrl: process.env.REACT_APP_API_BASE_URL || '/api/v1',
+  apiBaseUrl: process.env.REACT_APP_API_BASE_URL || 'http://localhost:8000/api/v1',
   
   // Default pagination settings
   pagination: {
