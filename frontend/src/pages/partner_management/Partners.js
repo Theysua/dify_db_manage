@@ -75,7 +75,15 @@ const Partners = () => {
         (params[key] === '' || params[key] === undefined) && delete params[key]
       );
 
-      const response = await axios.get(`${API_BASE_URL}/admin/partners`, { params });
+      // 获取认证token
+      const token = localStorage.getItem('dify_token');
+      
+      const response = await axios.get(`${API_BASE_URL}/admin/partners`, { 
+        params,
+        headers: {
+          'Authorization': `Bearer ${token}`
+        } 
+      });
       
       setPartners(response.data);
       setPagination({
@@ -146,11 +154,11 @@ const Partners = () => {
     
     setSubmitting(true);
     try {
-      const response = await axios.put(`${API_BASE_URL}/admin/partners/${currentPartner.PartnerId}`, values);
+      const response = await axios.put(`${API_BASE_URL}/admin/partners/${currentPartner.PartnerID}`, values);
       
       // Update local data
       setPartners(partners.map(partner => 
-        partner.PartnerId === currentPartner.PartnerId ? response.data : partner
+        partner.PartnerID === currentPartner.PartnerID ? response.data : partner
       ));
       
       message.success('合作伙伴信息已更新');
@@ -224,14 +232,14 @@ const Partners = () => {
       render: (_, record) => (
         <Space size="middle">
           <Tooltip title="查看订单">
-            <Button
-              icon={<EyeOutlined />}
-              size="small"
-              component={Link}
-              to={`/partner-management/partners/${record.PartnerId}/orders`}
-            >
-              订单
-            </Button>
+            <Link to={`/partner-management/partners/${record.PartnerID}/orders`}>
+              <Button
+                icon={<EyeOutlined />}
+                size="small"
+              >
+                订单
+              </Button>
+            </Link>
           </Tooltip>
           <Tooltip title="编辑">
             <Button

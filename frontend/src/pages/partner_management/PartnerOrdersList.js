@@ -1,11 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { useParams, useNavigate, Link } from 'react-router-dom';
 import {
   Table,
   Tag,
   Button,
   Card,
-  Input,
   Space,
   Select,
   message,
@@ -14,28 +13,38 @@ import {
   Tooltip,
   Row,
   Col,
+  Alert,
   Modal,
   Form,
-  Popconfirm
+  Input,
+  Popconfirm,
+  Descriptions
 } from 'antd';
 import {
   SearchOutlined,
   EyeOutlined,
   FilterOutlined,
   ReloadOutlined,
+  ArrowLeftOutlined,
   EditOutlined,
   DeleteOutlined,
   CheckOutlined,
   CloseOutlined,
-  LinkOutlined
+  PlusOutlined
 } from '@ant-design/icons';
 import axios from 'axios';
 import { API_BASE_URL } from '../../services/config';
 
-const { Title } = Typography;
+const { Title, Text } = Typography;
 const { Option } = Select;
+const { TextArea } = Input;
 
-const PartnerOrders = () => {
+const PartnerOrdersList = () => {
+  const { partnerId } = useParams();
+  // 确保partnerId作为整数传给后端API
+  const partnerIdInt = partnerId ? parseInt(partnerId, 10) : null;
+  const navigate = useNavigate();
+  const [partnerInfo, setPartnerInfo] = useState(null);
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
   const [pagination, setPagination] = useState({
@@ -44,38 +53,36 @@ const PartnerOrders = () => {
     total: 0
   });
   const [filters, setFilters] = useState({
-    status: '',
-    query: ''
+    status: ''
   });
   const [selectedOrder, setSelectedOrder] = useState(null);
   const [statusModalVisible, setStatusModalVisible] = useState(false);
   const [statusForm] = Form.useForm();
-  const [partners, setPartners] = useState([]);
 
-  // Fetch partners for filter dropdown
+  // 获取合作伙伴信息
   useEffect(() => {
-    const fetchPartners = async () => {
+    const fetchPartnerInfo = async () => {
       try {
-        // 获取认证token
         const token = localStorage.getItem('dify_token');
-        
-        const response = await axios.get(`${API_BASE_URL}/admin/partners`, {
+        const response = await axios.get(`${API_BASE_URL}/admin/partners/${partnerIdInt}`, {
           headers: {
             'Authorization': `Bearer ${token}`
           }
         });
-        setPartners(response.data);
+        setPartnerInfo(response.data);
       } catch (error) {
-        console.error('Error fetching partners:', error);
-        message.error('无法加载合作伙伴数据');
+        console.error('获取合作伙伴信息失败:', error);
+        message.error('无法加载合作伙伴信息');
       }
     };
 
-    fetchPartners();
-  }, []);
+    if (partnerId) {
+      fetchPartnerInfo();
+    }
+  }, [partnerId]);
 
-  // Fetch orders with pagination and filters
-  const fetchOrders = async (page = 1, pageSize = 10) => {
+  // 获取合作伙伴的订单
+  const fetchPartnerOrders = async (page = 1, pageSize = 10) => {
     setLoading(true);
     try {
       const params = {
@@ -84,19 +91,17 @@ const PartnerOrders = () => {
         ...filters
       };
 
-      // Remove empty filters
+      // 移除空过滤器
       Object.keys(params).forEach(key => 
         (params[key] === '' || params[key] === undefined) && delete params[key]
       );
 
-      // 获取认证token
       const token = localStorage.getItem('dify_token');
-      
-      const response = await axios.get(`${API_BASE_URL}/admin/orders`, { 
+      const response = await axios.get(`${API_BASE_URL}/admin/partners/${partnerIdInt}/orders`, {
         params,
         headers: {
           'Authorization': `Bearer ${token}`
-        } 
+        }
       });
       
       setOrders(response.data);
@@ -107,23 +112,25 @@ const PartnerOrders = () => {
         total: response.headers['x-total-count'] || response.data.length
       });
     } catch (error) {
-      console.error('Error fetching orders:', error);
-      message.error('加载订单数据失败');
+      console.error('获取订单列表失败:', error);
+      message.error('无法加载订单数据');
     } finally {
       setLoading(false);
     }
   };
 
-  // Initial data fetch
+  // 初始加载数据
   useEffect(() => {
-    fetchOrders(pagination.current, pagination.pageSize);
-  }, [filters]);
+    if (partnerId) {
+      fetchPartnerOrders(pagination.current, pagination.pageSize);
+    }
+  }, [partnerId, filters]);
 
-  // Handle table change (pagination, filters)
+  // 处理表格变化（分页、筛选）
   const handleTableChange = (pagination) => {
-    fetchOrders(pagination.current, pagination.pageSize);
+    fetchPartnerOrders(pagination.current, pagination.pageSize);
   };
-  
+
   // 更新订单状态
   const updateOrderStatus = async (orderId, status, comments) => {
     try {
@@ -137,14 +144,14 @@ const PartnerOrders = () => {
         }
       });
       message.success(`订单状态已更新为${status}`);
-      fetchOrders(pagination.current, pagination.pageSize);
+      fetchPartnerOrders(pagination.current, pagination.pageSize);
     } catch (error) {
       console.error('更新订单状态失败:', error);
       message.error('更新订单状态失败');
     }
   };
-  
-  // 删除订单（实际上通常是将状态改为CANCELED而非真正删除）
+
+  // 取消订单
   const cancelOrder = async (orderId) => {
     try {
       await updateOrderStatus(orderId, 'CANCELED', '管理员取消');
@@ -153,7 +160,7 @@ const PartnerOrders = () => {
       message.error('取消订单失败');
     }
   };
-  
+
   // 打开状态更新对话框
   const showStatusModal = (order) => {
     setSelectedOrder(order);
@@ -163,7 +170,7 @@ const PartnerOrders = () => {
     });
     setStatusModalVisible(true);
   };
-  
+
   // 处理状态更新提交
   const handleStatusUpdate = async () => {
     try {
@@ -175,28 +182,27 @@ const PartnerOrders = () => {
     }
   };
 
-  // Handle filter changes
+  // 处理过滤器变化
   const handleFilterChange = (key, value) => {
     setFilters({
       ...filters,
       [key]: value
     });
-    // Reset to first page when filters change
+    // 重置到第一页
     setPagination({
       ...pagination,
       current: 1
     });
   };
 
-  // Reset all filters
+  // 重置所有过滤器
   const handleResetFilters = () => {
     setFilters({
       status: ''
-      // partnerId已从Order模型中移除，因此不再需要重置
     });
   };
 
-  // Get tag color based on status
+  // 根据状态获取标签颜色
   const getStatusColor = (status) => {
     switch (status) {
       case 'APPROVED':
@@ -207,12 +213,18 @@ const PartnerOrders = () => {
         return 'error';
       case 'COMPLETED':
         return 'blue';
+      case 'CANCELED':
+        return 'default';
+      case 'DRAFT':
+        return 'processing';
+      case 'CONFIRMED':
+        return 'cyan';
       default:
         return 'default';
     }
   };
 
-  // Status options for filter
+  // 状态选项
   const statusOptions = [
     { value: 'DRAFT', label: '草稿' },
     { value: 'CONFIRMED', label: '已确认' },
@@ -223,18 +235,13 @@ const PartnerOrders = () => {
     { value: 'COMPLETED', label: '已完成' }
   ];
 
-  // Table columns definition
+  // 表格列定义
   const columns = [
     {
       title: '订单编号',
       dataIndex: 'OrderNumber',
       key: 'OrderNumber',
       render: (text) => <a>{text}</a>,
-    },
-    {
-      title: '合作伙伴',
-      dataIndex: 'PartnerName',
-      key: 'PartnerName',
     },
     {
       title: '订单日期',
@@ -269,7 +276,7 @@ const PartnerOrders = () => {
               type="primary" 
               icon={<EyeOutlined />} 
               size="small"
-              onClick={() => window.location.href = `/partner-management/orders/${record.OrderId}`}
+              onClick={() => navigate(`/partner-management/orders/${record.OrderId}`)}
             >
               详情
             </Button>
@@ -309,24 +316,55 @@ const PartnerOrders = () => {
 
   return (
     <div>
+      <Space style={{ marginBottom: 16 }}>
+        <Button 
+          icon={<ArrowLeftOutlined />}
+          onClick={() => navigate('/partner-management/partners')}
+        >
+          返回合作伙伴列表
+        </Button>
+      </Space>
+
+      {partnerInfo && (
+        <>
+          <Title level={2}>{partnerInfo.PartnerName} - 订单管理</Title>
+          <Card style={{ marginBottom: 16 }}>
+            <Descriptions title="合作伙伴信息" bordered column={2}>
+              <Descriptions.Item label="联系人">{partnerInfo.ContactPerson || '-'}</Descriptions.Item>
+              <Descriptions.Item label="联系邮箱">{partnerInfo.ContactEmail || '-'}</Descriptions.Item>
+              <Descriptions.Item label="联系电话">{partnerInfo.ContactPhone || '-'}</Descriptions.Item>
+              <Descriptions.Item label="合作等级">{partnerInfo.PartnerLevel || '-'}</Descriptions.Item>
+              <Descriptions.Item label="区域">{partnerInfo.Region || '-'}</Descriptions.Item>
+              <Descriptions.Item label="状态">
+                <Tag color={partnerInfo.Status === 'ACTIVE' ? 'success' : 'default'}>
+                  {partnerInfo.Status === 'ACTIVE' ? '活跃' : partnerInfo.Status}
+                </Tag>
+              </Descriptions.Item>
+            </Descriptions>
+          </Card>
+        </>
+      )}
+      
+      <Divider />
+
       <Row justify="space-between" align="middle" style={{ marginBottom: 16 }}>
         <Col>
-          <Title level={2}>合作伙伴订单管理</Title>
+          <Title level={4}>订单列表</Title>
         </Col>
         <Col>
           <Button 
-            type="primary" 
-            onClick={() => window.location.href = '/partner-management/orders/new'}
+            type="primary"
+            icon={<PlusOutlined />}
+            onClick={() => navigate('/partner-management/orders/new')}
           >
             创建新订单
           </Button>
         </Col>
       </Row>
-      <Divider />
 
       <Card style={{ marginBottom: 16 }}>
         <Row gutter={16}>
-          <Col span={6}>
+          <Col span={8}>
             <Select
               placeholder="订单状态"
               style={{ width: '100%' }}
@@ -341,8 +379,7 @@ const PartnerOrders = () => {
               ))}
             </Select>
           </Col>
-          {/* 由于Order模型不再直接关联到合作伙伴，移除此过滤器 */}
-          <Col span={6}>
+          <Col span={8}>
             <Input 
               placeholder="搜索订单编号" 
               prefix={<SearchOutlined />} 
@@ -350,7 +387,7 @@ const PartnerOrders = () => {
               value={filters.query}
             />
           </Col>
-          <Col span={6}>
+          <Col span={8}>
             <Space>
               <Button 
                 icon={<FilterOutlined />} 
@@ -361,7 +398,7 @@ const PartnerOrders = () => {
               <Button 
                 type="primary" 
                 icon={<ReloadOutlined />} 
-                onClick={() => fetchOrders(pagination.current, pagination.pageSize)}
+                onClick={() => fetchPartnerOrders(pagination.current, pagination.pageSize)}
               >
                 刷新
               </Button>
@@ -404,7 +441,7 @@ const PartnerOrders = () => {
             name="comments"
             label="备注"
           >
-            <Input.TextArea rows={4} placeholder="添加备注说明（可选）" />
+            <TextArea rows={4} placeholder="添加备注说明（可选）" />
           </Form.Item>
         </Form>
       </Modal>
@@ -412,4 +449,4 @@ const PartnerOrders = () => {
   );
 };
 
-export default PartnerOrders;
+export default PartnerOrdersList;

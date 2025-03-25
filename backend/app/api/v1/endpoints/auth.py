@@ -23,7 +23,7 @@ def login_access_token(
     """
     # Try to authenticate as admin user
     user = db.query(User).filter(User.username == form_data.username).first()
-    if user and verify_password(form_data.password, user.password):
+    if user and verify_password(form_data.password, user.hashed_password):
         scopes = ["admin"]
         if user.role == "sales_rep":
             scopes.append("sales_rep")
@@ -35,7 +35,7 @@ def login_access_token(
             "access_token": create_access_token(
                 data={
                     "sub": user.username,
-                    "user_id": user.user_id,
+                    "user_id": user.id,
                     "scopes": scopes
                 },
                 expires_delta=access_token_expires
@@ -118,7 +118,7 @@ def create_admin_user(
     new_user = User(
         username=user_data.Username,
         email=user_data.Email,
-        password=get_password_hash(user_data.Password),
+        hashed_password=get_password_hash(user_data.Password),
         full_name=user_data.FullName,
         is_active=user_data.IsActive,
         role=user_data.Role
@@ -129,7 +129,7 @@ def create_admin_user(
     db.refresh(new_user)
     
     return schemas.UserInfo(
-        UserID=new_user.user_id,
+        UserID=new_user.id,
         Username=new_user.username,
         Email=new_user.email,
         FullName=new_user.full_name,

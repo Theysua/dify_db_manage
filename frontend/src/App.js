@@ -34,6 +34,8 @@ import PartnerProfile from './pages/partner/Profile';
 import PartnerOrders from './pages/partner_management/PartnerOrders';
 import PartnerOrderDetail from './pages/partner_management/PartnerOrderDetail';
 import Partners from './pages/partner_management/Partners';
+import CreateOrder from './pages/partner_management/CreateOrder';
+import PartnerOrdersList from './pages/partner_management/PartnerOrdersList';
 
 // Auth Pages
 import Login from './pages/Login';
@@ -113,10 +115,11 @@ function App() {
             </Route>
             <Route path="operations" element={<ProtectedRoute><Operations /></ProtectedRoute>} />
             <Route path="partner-management">
-              <Route path="orders" element={<ProtectedRoute requiredRole="admin"><PartnerOrders /></ProtectedRoute>} />
-              <Route path="orders/:orderId" element={<ProtectedRoute requiredRole="admin"><PartnerOrderDetail /></ProtectedRoute>} />
-              <Route path="partners" element={<ProtectedRoute requiredRole="admin"><Partners /></ProtectedRoute>} />
-              <Route path="partners/:partnerId/orders" element={<ProtectedRoute requiredRole="admin"><PartnerOrders /></ProtectedRoute>} />
+              <Route path="orders" element={<ProtectedRoute><PartnerOrders /></ProtectedRoute>} />
+              <Route path="orders/new" element={<ProtectedRoute><CreateOrder /></ProtectedRoute>} />
+              <Route path="orders/:orderId" element={<ProtectedRoute><PartnerOrderDetail /></ProtectedRoute>} />
+              <Route path="partners" element={<ProtectedRoute><Partners /></ProtectedRoute>} />
+              <Route path="partners/:partnerId/orders" element={<ProtectedRoute><PartnerOrdersList /></ProtectedRoute>} />
             </Route>
             <Route path="*" element={<NotFound />} />
           </Route>

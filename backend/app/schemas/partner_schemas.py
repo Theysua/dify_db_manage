@@ -116,7 +116,7 @@ class OrderItemInfo(OrderItemBase):
 
 class OrderInfo(OrderBase):
     OrderId: str
-    PartnerID: int
+    PartnerID: Optional[int] = None  # 由于订单现在不再直接关联到合作伙伴，所以改为可选字段
     CreatedAt: datetime
     UpdatedAt: datetime
     OrderItems: List[OrderItemInfo] = []

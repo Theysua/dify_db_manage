@@ -101,6 +101,21 @@ class PartnerService:
         db.commit()
         db.refresh(db_partner)
         return db_partner
+        
+    @staticmethod
+    def delete_partner(db: Session, partner_id: int) -> bool:
+        """Delete a partner by ID"""
+        db_partner = PartnerService.get_partner_by_id(db, partner_id)
+        if not db_partner:
+            return False
+        
+        # 检查是否有关联的订单或其他依赖关系
+        # 这里可以添加额外的检查逻辑
+        
+        # 删除合作伙伴
+        db.delete(db_partner)
+        db.commit()
+        return True
     
     @staticmethod
     def _partner_to_schema(partner: Partner) -> schemas.PartnerInfo:
@@ -233,7 +248,7 @@ class OrderService:
         return order_info
     
     @staticmethod
-    def _order_to_schema(order: Order, partner_id: int) -> schemas.OrderInfo:
+    def _order_to_schema(db: Session, order: Order) -> schemas.OrderInfo:
         """Convert an Order model to an OrderInfo schema"""
         from app.schemas.partner_schemas import OrderInfo, OrderItemInfo
         
@@ -260,7 +275,7 @@ class OrderService:
             TotalAmount=order.total_amount,
             Status=order.status,
             Notes=order.notes,
-            PartnerID=partner_id,  # We use the partner_id from the argument
+            PartnerID=None,  # 订单现在不直接关联到合作伙伴
             CreatedAt=order.created_at,
             UpdatedAt=order.updated_at,
             OrderItems=order_items
@@ -278,7 +293,7 @@ class OrderService:
             .all()
             
         # Convert the Order models to OrderInfo schemas
-        return [OrderService._order_to_schema(order, partner_id) for order in orders]
+        return [OrderService._order_to_schema(db, order) for order in orders]
     
     @staticmethod
     def get_order_by_id(db: Session, order_id: str, partner_id: Optional[int] = None) -> Optional[Order]:
@@ -290,7 +305,7 @@ class OrderService:
         return db.query(Order).filter(Order.order_id == order_id).first()
     
     @staticmethod
-    def update_order_status(db: Session, order_id: str, partner_id: int, status: str) -> Optional[schemas.OrderInfo]:
+    def update_order_status(db: Session, order_id: str, status: str) -> Optional[schemas.OrderInfo]:
         """Update order status"""
         db_order = db.query(Order).filter(Order.order_id == order_id).first()
         if not db_order:
@@ -300,5 +315,69 @@ class OrderService:
         db.commit()
         db.refresh(db_order)
         
-        # Convert db_order to OrderInfo schema format using the existing helper method
-        return PartnerService._order_to_schema(db_order, partner_id)
+        return OrderService._order_to_schema(db, db_order)
+    
+    @staticmethod
+    def update_order(db: Session, order_id: str, order_data: schemas.OrderUpdate) -> Optional[schemas.OrderInfo]:
+        """Update order details"""
+        db_order = db.query(Order).filter(Order.order_id == order_id).first()
+        if not db_order:
+            return None
+        
+        # 获取需要更新的字段
+        update_data = order_data.dict(exclude_unset=True)
+        
+        # 转换字段名格式（驼峰命名转为蛇形命名）
+        model_data = {}
+        for key, value in update_data.items():
+            if value is not None and key not in ["OrderItems"]:
+                model_key = re.sub(r'(?<!^)(?=[A-Z])', '_', key).lower()
+                model_data[model_key] = value
+        
+        # 更新订单基本信息
+        for key, value in model_data.items():
+            if hasattr(db_order, key):
+                setattr(db_order, key, value)
+        
+        # 如果有订单项需要更新
+        if "OrderItems" in update_data and update_data["OrderItems"]:
+            # 这里可以实现订单项的更新逻辑
+            # 例如：删除现有项目，添加新项目等
+            pass
+            
+        db.commit()
+        db.refresh(db_order)
+        
+        return OrderService._order_to_schema(db, db_order)
+    
+    @staticmethod
+    def associate_with_partner(db: Session, order_id: str, partner_id: int) -> Optional[schemas.OrderInfo]:
+        """将订单与合作伙伴关联
+        
+        注意：由于当前数据模型中，Order与Partner没有直接的关联字段，
+        这里我们使用元数据表或其他方法来建立关联。
+        """
+        # 验证订单和合作伙伴是否存在
+        order = db.query(Order).filter(Order.order_id == order_id).first()
+        partner = db.query(Partner).filter(Partner.partner_id == partner_id).first()
+        
+        if not order or not partner:
+            return None
+        
+        # 在这里，我们可以使用元数据或关联表来存储这种关系
+        # 例如，可以在订单的notes字段中添加关联信息
+        note = f"\n[{datetime.now()}] Associated with partner ID: {partner_id}, Name: {partner.partner_name}"
+        order.notes = (order.notes or "") + note
+        
+        # 也可以创建一个专门的关联表来存储这种关系
+        # 例如：db.add(PartnerOrderAssociation(order_id=order_id, partner_id=partner_id))
+        
+        db.commit()
+        db.refresh(order)
+        
+        # 返回更新后的订单信息，注意设置PartnerID
+        order_info = OrderService._order_to_schema(db, order)
+        order_info.PartnerID = partner_id
+        order_info.PartnerName = partner.partner_name
+        
+        return order_info
