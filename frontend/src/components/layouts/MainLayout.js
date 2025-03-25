@@ -5,7 +5,9 @@ import {
   ToolOutlined,
   UserOutlined,
   ControlOutlined,
-  TeamOutlined
+  TeamOutlined,
+  ShopOutlined,
+  ShoppingOutlined
 } from '@ant-design/icons';
 import { Layout, Menu, theme } from 'antd';
 import React, { useState } from 'react';
@@ -57,6 +59,23 @@ const MainLayout = () => {
       key: '/operations',
       icon: <ControlOutlined />,
       label: '运营工作台（新建许可证）',
+    },
+    {
+      key: 'partner-management',
+      icon: <ShopOutlined />,
+      label: '合作伙伴管理',
+      children: [
+        {
+          key: '/partner-management/partners',
+          icon: <TeamOutlined />,
+          label: '合作伙伴列表',
+        },
+        {
+          key: '/partner-management/orders',
+          icon: <ShoppingOutlined />,
+          label: '订单管理',
+        }
+      ]
     },
   ];
 

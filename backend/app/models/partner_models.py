@@ -1,0 +1,66 @@
+from sqlalchemy import Column, Integer, String, Date, DateTime, Text, Float, Enum, ForeignKey, JSON, Boolean
+from sqlalchemy.orm import relationship
+from sqlalchemy.sql import func
+from datetime import datetime
+from app.db.database import Base
+
+
+class Partner(Base):
+    __tablename__ = "partners"
+    
+    partner_id = Column(Integer, primary_key=True, index=True)
+    partner_name = Column(String(100), nullable=False)
+    contact_person = Column(String(100))
+    contact_email = Column(String(100))
+    contact_phone = Column(String(20))
+    address = Column(String(255))
+    partner_level = Column(String(50))
+    region = Column(String(50))
+    status = Column(Enum('ACTIVE', 'INACTIVE', name='partner_status_enum'), default='ACTIVE')
+    username = Column(String(50), unique=True, nullable=False)
+    password_hash = Column(String(100), nullable=False)
+    created_at = Column(DateTime, default=func.now())
+    updated_at = Column(DateTime, default=func.now(), onupdate=func.now())
+    
+    # Relationships
+    orders = relationship("Order", back_populates="partner", cascade="all, delete-orphan")
+
+
+class Order(Base):
+    __tablename__ = "orders"
+    
+    order_id = Column(Integer, primary_key=True, index=True)
+    partner_id = Column(Integer, ForeignKey("partners.partner_id", ondelete="CASCADE"), nullable=False)
+    order_number = Column(String(50), unique=True, nullable=False)
+    order_date = Column(Date, nullable=False, default=func.current_date())
+    agreement_acknowledged = Column(Boolean, default=False, nullable=False)
+    agreement_date = Column(DateTime)
+    total_amount = Column(Float, nullable=False)
+    status = Column(Enum('PENDING', 'APPROVED', 'REJECTED', 'COMPLETED', name='order_status_enum'), default='PENDING')
+    notes = Column(Text)
+    created_at = Column(DateTime, default=func.now())
+    updated_at = Column(DateTime, default=func.now(), onupdate=func.now())
+    
+    # Relationships
+    partner = relationship("Partner", back_populates="orders")
+    order_items = relationship("OrderItem", back_populates="order", cascade="all, delete-orphan")
+
+
+class OrderItem(Base):
+    __tablename__ = "order_items"
+    
+    item_id = Column(Integer, primary_key=True, index=True)
+    order_id = Column(Integer, ForeignKey("orders.order_id", ondelete="CASCADE"), nullable=False)
+    product_name = Column(String(100), nullable=False, default="Dify Enterprise")
+    license_type = Column(String(50), nullable=False)
+    quantity = Column(Integer, nullable=False, default=1)
+    unit_price = Column(Float, nullable=False)
+    total_price = Column(Float, nullable=False)
+    license_duration_years = Column(Integer, nullable=False, default=1)
+    tax_rate = Column(Float, default=0.03)  # Default 3% tax rate
+    end_user_name = Column(String(100), nullable=False)
+    created_at = Column(DateTime, default=func.now())
+    updated_at = Column(DateTime, default=func.now(), onupdate=func.now())
+    
+    # Relationships
+    order = relationship("Order", back_populates="order_items")

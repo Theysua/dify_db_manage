@@ -31,7 +31,7 @@ class SalesRep(Base):
     sales_rep_name = Column(String(100), nullable=False)
     email = Column(String(100), nullable=False)
     phone = Column(String(20))
-    department = Column(String(50))
+    salesperson_type = Column(Enum('解决方案架构师', 'FDE', '商业化内部运营', '其他', name='sales_rep_type_enum'), default='其他')
     position = Column(String(50))
     status = Column(Enum('ACTIVE', 'INACTIVE', name='sales_rep_status_enum'), default='ACTIVE')
     created_at = Column(DateTime, default=func.now())
@@ -126,7 +126,7 @@ class FactoryEngineer(Base):
     email = Column(String(100), nullable=False)
     phone = Column(String(20))
     department = Column(String(50))
-    specialization = Column(String(100))
+    expertise = Column(String(255))  # 工程师的专长领域/技能描述
     status = Column(Enum('ACTIVE', 'INACTIVE', name='engineer_status_enum'), default='ACTIVE')
     created_at = Column(DateTime, default=func.now())
     updated_at = Column(DateTime, default=func.now(), onupdate=func.now())

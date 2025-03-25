@@ -143,11 +143,9 @@ const Engineers = () => {
           Name: '张三',
           Email: 'zhangsan@example.com',
           Phone: '+86 123 4567 8901',
-          Specialization: 'AWS',
+          Expertise: 'AWS',
           Region: '亚太',
-          SkillLevel: '高级',
           Status: 'ACTIVE',
-          DeploymentCapacity: 5,
           CurrentDeployments: 3,
           JoinDate: '2024-01-15'
         },
@@ -230,11 +228,9 @@ const Engineers = () => {
         Name: record.Name,
         Email: record.Email,
         Phone: record.Phone,
-        Specialization: record.Specialization,
+        Expertise: record.Expertise,
         Region: record.Region,
-        SkillLevel: record.SkillLevel,
-        Status: record.Status,
-        DeploymentCapacity: record.DeploymentCapacity
+        Status: record.Status
       });
     } else {
       setEditingEngineerId(null);
@@ -308,28 +304,18 @@ const Engineers = () => {
       ),
     },
     {
-      title: '专业技能',
-      dataIndex: 'Specialization',
-      key: 'Specialization',
+      title: '专业领域',
+      dataIndex: 'Expertise',
+      key: 'Expertise',
       filters: [
         { text: 'AWS', value: 'AWS' },
         { text: 'Azure', value: 'Azure' },
         { text: 'GCP', value: 'GCP' },
         { text: 'On-Premise', value: 'On-Premise' },
       ],
-      onFilter: (value, record) => record.Specialization === value,
+      onFilter: (value, record) => record.Expertise === value,
     },
-    {
-      title: '技能等级',
-      dataIndex: 'SkillLevel',
-      key: 'SkillLevel',
-      filters: [
-        { text: '高级', value: '高级' },
-        { text: '中级', value: '中级' },
-        { text: '初级', value: '初级' },
-      ],
-      onFilter: (value, record) => record.SkillLevel === value,
-    },
+
     {
       title: '区域',
       dataIndex: 'Region',
@@ -502,8 +488,8 @@ const Engineers = () => {
                 <AppstoreOutlined style={{ fontSize: '24px', color: 'var(--apple-warning)' }} />
               </div>
               <div style={{ marginLeft: '16px' }}>
-                <div style={{ fontSize: '14px', color: 'var(--apple-text-secondary)' }}>部署采用率</div>
-                <div style={{ fontSize: '28px', fontWeight: '600' }}>{stats?.DeploymentCapacityUtilization || 0}%</div>
+                <div style={{ fontSize: '14px', color: 'var(--apple-text-secondary)' }}>参与的部署项目</div>
+                <div style={{ fontSize: '28px', fontWeight: '600' }}>{stats?.TotalDeployments || 0}</div>
               </div>
             </div>
           </Card>
@@ -525,8 +511,8 @@ const Engineers = () => {
               </Form.Item>
             </Col>
             <Col span={6}>
-              <Form.Item name="specialization" label="专业技能">
-                <Select placeholder="选择技能" allowClear>
+              <Form.Item name="expertise" label="专业领域">
+                <Select placeholder="选择专业领域" allowClear>
                   <Option value="AWS">AWS</Option>
                   <Option value="Azure">Azure</Option>
                   <Option value="GCP">GCP</Option>
@@ -655,9 +641,9 @@ const Engineers = () => {
             </Col>
             <Col span={12}>
               <Form.Item 
-                name="Specialization" 
-                label="专业技能"
-                rules={[{ required: true, message: '请选择专业技能' }]}
+                name="Expertise" 
+                label="专业领域"
+                rules={[{ required: true, message: '请选择专业领域' }]}
               >
                 <Select placeholder="选择技能">
                   <Option value="AWS">AWS</Option>

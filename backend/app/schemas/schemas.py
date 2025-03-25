@@ -62,7 +62,7 @@ class SalesRepBase(BaseModel):
     SalesRepName: str
     Email: EmailStr
     Phone: Optional[str] = None
-    Department: Optional[str] = None
+    SalespersonType: Optional[str] = None
     Position: Optional[str] = None
     Status: StatusEnum = StatusEnum.ACTIVE
 
@@ -115,7 +115,7 @@ class FactoryEngineerBase(BaseModel):
     Email: EmailStr
     Phone: Optional[str] = None
     Department: Optional[str] = None
-    Specialization: Optional[str] = None
+    Expertise: Optional[str] = None
     Status: StatusEnum = StatusEnum.ACTIVE
 
 
@@ -169,8 +169,7 @@ class PurchaseRecordCreate(PurchaseRecordBase):
 
 
 class EngineerCreate(FactoryEngineerBase):
-    Certification: Optional[str] = None
-    ExperienceYears: Optional[int] = None
+    pass
 
 
 class FactoryEngineerCreate(FactoryEngineerBase):
@@ -244,7 +243,7 @@ class FactoryEngineerUpdate(BaseModel):
     Email: Optional[EmailStr] = None
     Phone: Optional[str] = None
     Department: Optional[str] = None
-    Specialization: Optional[str] = None
+    Expertise: Optional[str] = None
     Status: Optional[StatusEnum] = None
 
 
@@ -253,9 +252,7 @@ class EngineerUpdate(BaseModel):
     Email: Optional[EmailStr] = None
     Phone: Optional[str] = None
     Department: Optional[str] = None
-    Specialization: Optional[str] = None
-    Certification: Optional[str] = None
-    ExperienceYears: Optional[int] = None
+    Expertise: Optional[str] = None
     Status: Optional[StatusEnum] = None
 
 
@@ -283,8 +280,6 @@ class CustomerInfo(CustomerBase):
 
 class EngineerInfo(FactoryEngineerBase):
     EngineerID: int
-    Certification: Optional[str] = None
-    ExperienceYears: Optional[int] = None
     CreatedAt: datetime
     UpdatedAt: datetime
 
@@ -434,15 +429,64 @@ class LicenseIdResponse(BaseModel):
     licenseId: str
 
 
+# Partner schemas
+class PartnerBase(BaseModel):
+    PartnerName: str
+    ContactPerson: Optional[str] = None
+    ContactEmail: Optional[EmailStr] = None
+    ContactPhone: Optional[str] = None
+    Address: Optional[str] = None
+    PartnerLevel: Optional[str] = None
+    Region: Optional[str] = None
+    Status: StatusEnum = StatusEnum.ACTIVE
+    Username: str
+
+
+class PartnerCreate(PartnerBase):
+    Password: str
+
+
+class PartnerUpdate(BaseModel):
+    PartnerName: Optional[str] = None
+    ContactPerson: Optional[str] = None
+    ContactEmail: Optional[EmailStr] = None
+    ContactPhone: Optional[str] = None
+    Address: Optional[str] = None
+    PartnerLevel: Optional[str] = None
+    Region: Optional[str] = None
+    Status: Optional[StatusEnum] = None
+    Password: Optional[str] = None
+
+
+class PartnerInfo(PartnerBase):
+    PartnerID: int
+    CreatedAt: datetime
+    UpdatedAt: datetime
+
+    class Config:
+        orm_mode = True
+
+
 # Token schema for authentication
 class Token(BaseModel):
-    AccessToken: str
-    TokenType: str
+    access_token: str
+    token_type: str
 
 
 class TokenData(BaseModel):
     Username: Optional[str] = None
     Scopes: List[str] = []
+
+
+class PartnerLogin(BaseModel):
+    Username: str
+    Password: str
+
+
+class PartnerLoginResponse(BaseModel):
+    AccessToken: str
+    TokenType: str
+    Partner: PartnerInfo
 
 
 # User schemas for authentication

@@ -450,17 +450,18 @@ const SalesReps = () => {
               allowClear
             />
           </Form.Item>
-          <Form.Item label="部门">
+          <Form.Item label="销售人员类型">
             <Select
-              placeholder="选择部门"
+              placeholder="选择类型"
               value={searchDepartment}
               onChange={value => setSearchDepartment(value)}
               allowClear
-              style={{ width: 160 }}
+              style={{ width: 180 }}
             >
-              {departments.map(dept => (
-                <Option key={dept} value={dept}>{dept}</Option>
-              ))}
+              <Option value="解决方案架构师">解决方案架构师</Option>
+              <Option value="FDE">FDE</Option>
+              <Option value="商业化内部运营">商业化内部运营</Option>
+              <Option value="其他">其他</Option>
             </Select>
           </Form.Item>
           <Form.Item label="状态">
@@ -554,10 +555,16 @@ const SalesReps = () => {
             <Input placeholder="请输入电话号码" prefix={<PhoneOutlined />} />
           </Form.Item>
           <Form.Item
-            name="Department"
-            label="部门"
+            name="SalespersonType"
+            label="销售人员类型"
+            rules={[{ required: true, message: '请选择销售人员类型' }]}
           >
-            <Input placeholder="请输入部门" prefix={<TeamOutlined />} />
+            <Select placeholder="请选择销售人员类型">
+              <Option value="解决方案架构师">解决方案架构师</Option>
+              <Option value="FDE">FDE</Option>
+              <Option value="商业化内部运营">商业化内部运营</Option>
+              <Option value="其他">其他</Option>
+            </Select>
           </Form.Item>
           <Form.Item
             name="Position"

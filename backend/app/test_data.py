@@ -101,7 +101,7 @@ def create_engineers(db: Session, count: int = 8):
             email=fake.email(),
             phone=generate_phone(),
             department="技术服务",
-            specialization=random.choice(SPECIALIZATIONS),
+            expertise=random.choice(SPECIALIZATIONS),
             status=random.choices(['ACTIVE', 'INACTIVE'], weights=[0.9, 0.1])[0]
         )
         db.add(engineer)

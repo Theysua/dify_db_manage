@@ -33,7 +33,7 @@ def get_engineers(
     skip: int = Query(0, ge=0),
     limit: int = Query(100, ge=1, le=1000),
     name: Optional[str] = None,
-    specialization: Optional[str] = None,
+    expertise: Optional[str] = None,
     department: Optional[str] = None,
     status: Optional[schemas.StatusEnum] = None,
     db: Session = Depends(get_db)
@@ -55,7 +55,7 @@ def get_engineers(
         skip=skip,
         limit=limit,
         name_filter=name,
-        specialization=specialization,
+        expertise=expertise,
         department=department,
         status=status
     )

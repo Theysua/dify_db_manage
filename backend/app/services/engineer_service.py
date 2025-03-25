@@ -15,10 +15,7 @@ class EngineerService:
             engineer_name=engineer_data.EngineerName,
             email=engineer_data.Email,
             phone=engineer_data.Phone,
-            specialization=engineer_data.Specialization,
-            # 移除不存在的字段
-            # certification=engineer_data.Certification,
-            # experience_years=engineer_data.ExperienceYears,
+            expertise=engineer_data.Expertise,  # 使用新的expertise字段
             department=engineer_data.Department,
             status=engineer_data.Status
         )
@@ -42,9 +39,7 @@ class EngineerService:
             EngineerName=engineer.engineer_name,
             Email=engineer.email,
             Phone=engineer.phone,
-            Specialization=engineer.specialization,
-            Certification=engineer.certification,
-            ExperienceYears=engineer.experience_years,
+            Expertise=engineer.expertise,
             Department=engineer.department,
             Status=engineer.status,
             CreatedAt=engineer.created_at,
@@ -57,7 +52,7 @@ class EngineerService:
         skip: int = 0,
         limit: int = 100,
         name_filter: Optional[str] = None,
-        specialization: Optional[str] = None,
+        expertise: Optional[str] = None,
         department: Optional[str] = None,
         status: Optional[schemas.StatusEnum] = None
     ) -> Dict[str, Any]:
@@ -67,8 +62,8 @@ class EngineerService:
         # Apply filters
         if name_filter:
             query = query.filter(FactoryEngineer.engineer_name.ilike(f"%{name_filter}%"))
-        if specialization:
-            query = query.filter(FactoryEngineer.specialization == specialization)
+        if expertise:
+            query = query.filter(FactoryEngineer.expertise == expertise)
         if department:
             query = query.filter(FactoryEngineer.department == department)
         if status:
@@ -87,9 +82,7 @@ class EngineerService:
                 EngineerName=engineer.engineer_name,
                 Email=engineer.email,
                 Phone=engineer.phone,
-                Specialization=engineer.specialization,
-                Certification=None,  # 模型中没有这个字段
-                ExperienceYears=None,  # 模型中没有这个字段
+                Expertise=engineer.expertise,
                 Department=engineer.department,
                 Status=engineer.status,
                 CreatedAt=engineer.created_at,
@@ -135,9 +128,7 @@ class EngineerService:
             EngineerName=engineer.engineer_name,
             Email=engineer.email,
             Phone=engineer.phone,
-            Specialization=engineer.specialization,
-            Certification=engineer.certification,
-            ExperienceYears=engineer.experience_years,
+            Expertise=engineer.expertise,
             Department=engineer.department,
             Status=engineer.status,
             CreatedAt=engineer.created_at,

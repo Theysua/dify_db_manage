@@ -15,7 +15,7 @@ class SalesRepService:
             sales_rep_name=sales_rep_data.SalesRepName,
             email=sales_rep_data.Email,
             phone=sales_rep_data.Phone,
-            department=sales_rep_data.Department,
+            salesperson_type=sales_rep_data.SalespersonType,
             position=sales_rep_data.Position,
             status=sales_rep_data.Status
         )
@@ -30,7 +30,7 @@ class SalesRepService:
             SalesRepName=db_sales_rep.sales_rep_name,
             Email=db_sales_rep.email,
             Phone=db_sales_rep.phone,
-            Department=db_sales_rep.department,
+            SalespersonType=db_sales_rep.salesperson_type,
             Position=db_sales_rep.position,
             Status=db_sales_rep.status,
             CreatedAt=db_sales_rep.created_at,
@@ -50,7 +50,7 @@ class SalesRepService:
             SalesRepName=sales_rep.sales_rep_name,
             Email=sales_rep.email,
             Phone=sales_rep.phone,
-            Department=sales_rep.department,
+            SalespersonType=sales_rep.salesperson_type,
             Position=sales_rep.position,
             Status=sales_rep.status,
             CreatedAt=sales_rep.created_at,
@@ -72,8 +72,8 @@ class SalesRepService:
         # Apply filters
         if name_filter:
             query = query.filter(SalesRep.sales_rep_name.ilike(f"%{name_filter}%"))
-        if department:
-            query = query.filter(SalesRep.department == department)
+        if department:  # 使用department参数过滤salesperson_type字段
+            query = query.filter(SalesRep.salesperson_type == department)
         if status:
             query = query.filter(SalesRep.status == status)
         
@@ -90,7 +90,7 @@ class SalesRepService:
                 SalesRepName=sales_rep.sales_rep_name,
                 Email=sales_rep.email,
                 Phone=sales_rep.phone,
-                Department=sales_rep.department,
+                Department=sales_rep.salesperson_type,
                 Position=sales_rep.position,
                 Status=sales_rep.status,
                 CreatedAt=sales_rep.created_at,
@@ -136,7 +136,7 @@ class SalesRepService:
             SalesRepName=sales_rep.sales_rep_name,
             Email=sales_rep.email,
             Phone=sales_rep.phone,
-            Department=sales_rep.department,
+            SalespersonType=sales_rep.salesperson_type,
             Position=sales_rep.position,
             Status=sales_rep.status,
             CreatedAt=sales_rep.created_at,
