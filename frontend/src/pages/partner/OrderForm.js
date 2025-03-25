@@ -1,26 +1,26 @@
-import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
 import {
+  Alert,
   Box,
   Button,
-  TextField,
-  Typography,
-  Paper,
-  Grid,
-  FormControlLabel,
+  Card,
+  CardContent,
   Checkbox,
-  MenuItem,
-  InputAdornment,
+  CircularProgress,
   Divider,
-  Alert,
-  Stepper,
+  FormControlLabel,
+  Grid,
+  InputAdornment,
+  MenuItem,
+  Paper,
   Step,
   StepLabel,
-  CircularProgress,
-  Card,
-  CardContent
+  Stepper,
+  TextField,
+  Typography
 } from '@mui/material';
-import { partnerOrders, partnerAuth } from '../../services/partnerApi';
+import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { partnerAuth, partnerOrders } from '../../services/partnerApi';
 
 // License types available for ordering
 const LICENSE_TYPES = [
@@ -48,12 +48,12 @@ const PartnerOrderForm = () => {
   const [orderItems, setOrderItems] = useState([
     {
       ProductName: 'Dify Enterprise',
-      LicenseType: '',
+      LicenseType: 'ENTERPRISE',
       Quantity: 1,
       UnitPrice: 0,
       TotalPrice: 0,
       LicenseDurationYears: 1,
-      TaxRate: 0.03,
+      TaxRate: 3,
       EndUserName: ''
     }
   ]);
@@ -63,45 +63,49 @@ const PartnerOrderForm = () => {
   const [error, setError] = useState(null);
   
   // License type prices (示例价格，实际价格需要从后端获取)
-  const licenseTypePrices = {
-    '标准版': 39800,
-    '高级版': 69800,
-    '旗舰版': 99800
-  };
-  
   // Calculate total order amount
   const calculateTotal = () => {
     return orderItems.reduce((total, item) => total + item.TotalPrice, 0);
   };
   
-  // Update price calculations when license type, quantity, or duration changes
+  // Update price calculations when unit price or quantity changes
   const updatePriceCalculations = (index, item) => {
     const updatedItems = [...orderItems];
-    const basePrice = licenseTypePrices[item.LicenseType] || 0;
     
-    // Apply duration multiplier with discount for multi-year
-    let durationMultiplier = 1;
-    if (item.LicenseDurationYears === 2) {
-      durationMultiplier = 1.9; // 5% discount for 2 years
-    } else if (item.LicenseDurationYears === 3) {
-      durationMultiplier = 2.7; // 10% discount for 3 years
-    } else {
-      durationMultiplier = item.LicenseDurationYears;
-    }
-    
-    const unitPrice = basePrice * durationMultiplier;
-    const subtotal = unitPrice * item.Quantity;
-    const totalWithTax = subtotal * (1 + item.TaxRate);
+    // Calculate total based on user-input unit price and quantity
+    const total = item.UnitPrice * item.Quantity;
     
     updatedItems[index] = {
       ...item,
-      UnitPrice: unitPrice,
-      TotalPrice: Math.round(totalWithTax * 100) / 100 // Round to 2 decimal places
+      TotalPrice: Math.round(total * 100) / 100 // Round to 2 decimal places
     };
     
     setOrderItems(updatedItems);
   };
   
+  // 将数字转换为中文大写金额
+  const numberToChinese = (num) => {
+    if (num === 0) return '零元';
+    if (!num || isNaN(num)) return '';
+    
+    const digits = ['零', '一', '二', '三', '四', '五', '六', '七', '八', '九'];
+    const units = ['', '十', '百', '千', '万', '十', '百', '千', '亿', '十', '百', '千', '兆'];
+    
+    // 处理到万级别就足够了
+    if (num >= 10000) {
+      const wan = Math.floor(num / 10000);
+      const remainder = num % 10000;
+      
+      if (remainder === 0) {
+        return `${wan}万元`;
+      } else {
+        return `${wan}万${remainder}元`;
+      }
+    } else {
+      return `${num}元`;
+    }
+  };
+
   // Handle changes to order item fields
   const handleItemChange = (index, field, value) => {
     const updatedItems = [...orderItems];
@@ -111,7 +115,7 @@ const PartnerOrderForm = () => {
     };
     
     // If price-related field changed, update calculations
-    if (['LicenseType', 'Quantity', 'LicenseDurationYears', 'TaxRate'].includes(field)) {
+    if (['Quantity', 'UnitPrice'].includes(field)) {
       updatePriceCalculations(index, updatedItems[index]);
     } else {
       setOrderItems(updatedItems);
@@ -124,12 +128,12 @@ const PartnerOrderForm = () => {
       ...orderItems,
       {
         ProductName: 'Dify Enterprise',
-        LicenseType: '',
+        LicenseType: 'ENTERPRISE',
         Quantity: 1,
         UnitPrice: 0,
         TotalPrice: 0,
         LicenseDurationYears: 1,
-        TaxRate: 0.03,
+        TaxRate: 3,
         EndUserName: ''
       }
     ]);
@@ -227,17 +231,16 @@ const PartnerOrderForm = () => {
               <TextField
                 required
                 fullWidth
-                select
+                disabled
                 label="授权类型"
-                value={item.LicenseType}
-                onChange={(e) => handleItemChange(index, 'LicenseType', e.target.value)}
-              >
-                {LICENSE_TYPES.map(option => (
-                  <MenuItem key={option.value} value={option.value}>
-                    {option.label}
-                  </MenuItem>
-                ))}
-              </TextField>
+                value="Dify企业版"
+                onChange={(e) => handleItemChange(index, 'LicenseType', 'ENTERPRISE')}
+              />
+              <input 
+                type="hidden" 
+                value="ENTERPRISE" 
+                onChange={() => {}}
+              />
             </Grid>
             
             <Grid item xs={12} sm={6}>
@@ -287,12 +290,15 @@ const PartnerOrderForm = () => {
             <Grid item xs={12} sm={4}>
               <TextField
                 fullWidth
-                disabled
+                required
+                type="number"
                 label="单价"
-                value={`¥${item.UnitPrice.toLocaleString()}`}
+                value={item.UnitPrice}
+                onChange={(e) => handleItemChange(index, 'UnitPrice', parseFloat(e.target.value))}
+                helperText={item.UnitPrice > 0 ? numberToChinese(item.UnitPrice) : ''}
                 InputProps={{
-                  readOnly: true,
                   startAdornment: <InputAdornment position="start">¥</InputAdornment>,
+                  inputProps: { min: 0, step: 0.01 }
                 }}
               />
             </Grid>
@@ -303,8 +309,10 @@ const PartnerOrderForm = () => {
                 label="税率"
                 value={item.TaxRate}
                 onChange={(e) => handleItemChange(index, 'TaxRate', parseFloat(e.target.value))}
+                helperText="仅用于开票，不影响报价"
                 InputProps={{
                   endAdornment: <InputAdornment position="end">%</InputAdornment>,
+                  inputProps: { min: 0, max: 1, step: 0.01 }
                 }}
               />
             </Grid>
@@ -315,6 +323,7 @@ const PartnerOrderForm = () => {
                 disabled
                 label="总价(含税)"
                 value={`¥${item.TotalPrice.toLocaleString()}`}
+                helperText={item.TotalPrice > 0 ? numberToChinese(item.TotalPrice) : ''}
                 InputProps={{
                   readOnly: true,
                   startAdornment: <InputAdornment position="start">¥</InputAdornment>,
@@ -354,6 +363,26 @@ const PartnerOrderForm = () => {
           value={notes}
           onChange={(e) => setNotes(e.target.value)}
         />
+        
+        <Box sx={{ display: 'flex', justifyContent: 'flex-end', mt: 3, pr: 2 }}>
+          <Paper elevation={2} sx={{ p: 2, minWidth: '300px' }}>
+            <Typography variant="h6" gutterBottom>
+              订单总额
+            </Typography>
+            <Divider sx={{ mb: 2 }} />
+            <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
+              <Typography>商品金额：</Typography>
+              <Typography>¥{calculateTotal().toLocaleString()}</Typography>
+            </Box>
+            <Box sx={{ display: 'flex', justifyContent: 'space-between', mt: 1, fontWeight: 'bold' }}>
+              <Typography>订单总额：</Typography>
+              <Typography>¥{calculateTotal().toLocaleString()}</Typography>
+            </Box>
+            <Typography variant="caption" color="textSecondary" sx={{ mt: 1, display: 'block' }}>
+              (税率仅作记录，开票由我方负责)
+            </Typography>
+          </Paper>
+        </Box>
       </Box>
     </Box>
   );

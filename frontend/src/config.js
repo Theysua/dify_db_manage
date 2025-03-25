@@ -36,10 +36,7 @@ const config = {
   
   // License types for dropdown selections
   licenseTypes: [
-    { value: 'TRIAL', label: '试用版' },
-    { value: 'STANDARD', label: '标准版' },
-    { value: 'ENTERPRISE', label: '企业版' },
-    { value: 'PREMIUM', label: '高级版' },
+    { value: 'ENTERPRISE', label: 'Dify企业版' },
   ],
 };
 

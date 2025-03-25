@@ -96,5 +96,5 @@ def get_order_details(
     order = OrderService.get_order_by_id(db, order_id)
     if not order:
         raise HTTPException(status_code=404, detail="Order not found")
-    # Still need partner_id for the schema conversion
-    return OrderService._order_to_schema(order, current_partner.partner_id)
+    # 确保传入正确的参数：db作为第一个参数，order作为第二个参数
+    return OrderService._order_to_schema(db, order)
