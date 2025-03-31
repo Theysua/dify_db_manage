@@ -265,3 +265,68 @@ export const getLeadFunnelData = () => {
   }
   return axios.get(`${config.apiBaseUrl}/leads/funnel`, getAuthHeader());
 };
+
+// 销售业绩数据API
+export const getLeadPerformanceData = () => {
+  if (USE_MOCK_DATA) {
+    console.log('使用模拟数据: getLeadPerformanceData');
+    return new Promise((resolve) => {
+      // 模拟延迟
+      setTimeout(() => {
+        // 模拟销售业绩热力图数据
+        // 数据结构为[{id, 'Jan', 'Feb', ...}]
+        const performanceData = [
+          {
+            id: '张三',
+            'Jan': 75000,
+            'Feb': 120000,
+            'Mar': 67000,
+            'Apr': 89000,
+            'May': 134000,
+            'Jun': 112000,
+          },
+          {
+            id: '李四',
+            'Jan': 98000,
+            'Feb': 85000,
+            'Mar': 93000,
+            'Apr': 142000,
+            'May': 95000,
+            'Jun': 88000,
+          },
+          {
+            id: '王五',
+            'Jan': 45000,
+            'Feb': 63000,
+            'Mar': 87000,
+            'Apr': 91000,
+            'May': 105000,
+            'Jun': 118000,
+          },
+          {
+            id: '赵六',
+            'Jan': 105000,
+            'Feb': 118000,
+            'Mar': 96000,
+            'Apr': 72000,
+            'May': 84000,
+            'Jun': 108000,
+          },
+          {
+            id: '钱七',
+            'Jan': 62000,
+            'Feb': 71000,
+            'Mar': 84000,
+            'Apr': 99000,
+            'May': 112000,
+            'Jun': 127000,
+          }
+        ];
+        resolve({ data: performanceData });
+      }, 800);
+    });
+  }
+  // 注意：此API端点不限制销售代表或工程师的访问权限
+  // 与记忆中的权限设置一致，允许销售代表和工程师查看所有数据
+  return axios.get(`${config.apiBaseUrl}/leads/performance`, getAuthHeader());
+};

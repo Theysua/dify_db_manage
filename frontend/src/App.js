@@ -3,6 +3,9 @@ import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-d
 import { ConfigProvider } from 'antd';
 import zhCN from 'antd/lib/locale/zh_CN';
 
+// 主题系统
+import { ThemeProvider } from './context/ThemeContext';
+
 // Layouts
 import MainLayout from './components/layouts/MainLayout';
 import PartnerLayout from './components/layouts/PartnerLayout';
@@ -117,9 +120,10 @@ const PartnerProtectedRoute = ({ children }) => {
 
 function App() {
   return (
-    <ConfigProvider locale={zhCN}>
-      <Router>
-        <Routes>
+    <ThemeProvider>
+      <ConfigProvider locale={zhCN}>
+        <Router>
+          <Routes>
           {/* 登录路由 */}
           <Route path="/login" element={<Login />} />
           
@@ -182,9 +186,10 @@ function App() {
             <Route path="order-success" element={<PartnerOrderSuccess />} />
             <Route path="profile" element={<PartnerProfile />} />
           </Route>
-        </Routes>
-      </Router>
-    </ConfigProvider>
+          </Routes>
+        </Router>
+      </ConfigProvider>
+    </ThemeProvider>
   );
 }
 
