@@ -22,7 +22,7 @@ import useAuth from '../../hooks/useAuth';
 import { useTheme } from '../../context/ThemeContext';
 import ThemeSwitcher from '../common/ThemeSwitcher';
 import { motion } from 'framer-motion';
-import { brandColors } from '../../styles/theme';
+import { brandColors, darkModeColors } from '../../styles/theme';
 
 const { Header, Content, Footer, Sider } = Layout;
 
@@ -35,9 +35,9 @@ const MainLayout = () => {
   const { darkMode } = useTheme();
   
   // 现代化UI颜色，根据主题模式动态设置
-  const colorBgContainer = darkMode ? '#1f1f1f' : '#ffffff';
-  const colorBgMenu = darkMode ? '#141414' : '#001529';
-  const textColor = darkMode ? '#ffffff' : '#000000';
+  const colorBgContainer = darkMode ? darkModeColors.bg.elevated : '#ffffff';
+  const colorBgMenu = darkMode ? darkModeColors.bg.base : '#001529';
+  const textColor = darkMode ? darkModeColors.text.primary : '#000000';
 
   const menuItems = [
     {
@@ -242,7 +242,7 @@ const MainLayout = () => {
             zIndex: 100,
             width: '100%',
             boxShadow: '0 1px 2px 0 rgba(0, 0, 0, 0.03)',
-            borderBottom: `1px solid ${darkMode ? '#303030' : '#f0f0f0'}`
+            borderBottom: `1px solid ${darkMode ? darkModeColors.border.base : '#f0f0f0'}`
           }}
         >
           <div style={{ display: 'flex', alignItems: 'center' }}>
@@ -324,7 +324,7 @@ const MainLayout = () => {
               background: colorBgContainer,
               borderRadius: '8px',
               boxShadow: darkMode ? 'none' : '0 2px 8px rgba(0,0,0,0.05)',
-              border: darkMode ? '1px solid #303030' : 'none'
+              border: darkMode ? `1px solid ${darkModeColors.border.base}` : 'none'
             }}
           >
             <Outlet />
@@ -334,9 +334,9 @@ const MainLayout = () => {
           style={{ 
             textAlign: 'center',
             padding: '12px 50px',
-            color: darkMode ? 'rgba(255,255,255,0.65)' : 'rgba(0,0,0,0.45)',
+            color: darkMode ? darkModeColors.text.secondary : 'rgba(0,0,0,0.45)',
             background: colorBgContainer,
-            borderTop: `1px solid ${darkMode ? '#303030' : '#f0f0f0'}`
+            borderTop: `1px solid ${darkMode ? darkModeColors.border.divider : '#f0f0f0'}`
           }}
         >
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>

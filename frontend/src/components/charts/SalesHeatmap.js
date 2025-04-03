@@ -169,11 +169,14 @@ export const SalesHeatmap = ({
     );
   }
   
+  // 确保data是有效的数组，需要在使用前进行验证
+  const validData = Array.isArray(data) ? data.filter(item => item && typeof item === 'object') : [];
+  
   // 图表配置
   const heatmapConfig = {
-    data,
+    data: validData,
     margin: { top: 60, right: 90, bottom: 60, left: 90 },
-    valueFormat: (value) => `¥${value.toLocaleString()}`,
+    valueFormat: (value) => `¥${value ? value.toLocaleString() : 0}`,
     axisTop: {
       tickSize: 5,
       tickPadding: 5,

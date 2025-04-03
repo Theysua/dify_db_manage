@@ -50,14 +50,36 @@ export const EnhancedFunnel = ({
     );
   }
   
+  // 确保data是一个有效的数组
+  if (!Array.isArray(data)) {
+    console.error('Invalid data format for EnhancedFunnel:', data);
+    return (
+      <Card title={title}>
+        <div style={{ height, display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+          <Empty description="数据格式无效" />
+        </div>
+      </Card>
+    );
+  }
+  
   // 根据当前视图准备图表数据
-  const chartData = data.map(item => ({
-    ...item,
-    value: activeView === 'count' ? item.count : item.totalValue,
-    color: item.color || brandColors.primary, // 使用自定义颜色或默认主色
-    // 计算转化率
-    conversionRate: item.prevCount ? Math.round((item.count / item.prevCount) * 100) : 100
-  }));
+  const chartData = data.map(item => {
+    if (!item || typeof item !== 'object') {
+      console.warn('Invalid item in funnel data:', item);
+      return null;
+    }
+    
+    return {
+      ...item,
+      id: item.id || item.name || 'unknown',
+      name: item.name || 'Unknown',
+      count: item.count || 0,
+      value: activeView === 'count' ? (item.count || 0) : (item.totalValue || 0),
+      color: item.color || brandColors.primary, // 使用自定义颜色或默认主色
+      // 计算转化率
+      conversionRate: item.prevCount ? Math.round(((item.count || 0) / item.prevCount) * 100) : 100
+    };
+  }).filter(Boolean); // 移除所有无效项
   
   // 漏斗图配置
   const funnelConfig = {

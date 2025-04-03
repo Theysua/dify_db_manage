@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Card, Row, Col, Statistic, Typography, Tabs, DatePicker, Button, Skeleton, Tooltip, Segmented, Space, Tag, Empty, Divider, Radio, message } from 'antd';
+import { Card, Row, Col, Statistic, Typography, Tabs, DatePicker, Button, Skeleton, Tooltip, Segmented, Space, Tag, Empty, Divider, Radio, message, Alert } from 'antd';
 import { 
   TrophyOutlined, 
   RiseOutlined, 
@@ -21,7 +21,7 @@ import { PageTransition } from '../../components/common/Transitions';
 import { ContentContainer, ResponsiveCardGrid } from '../../components/common/ResponsiveLayout';
 import { EnhancedFunnel } from '../../components/charts/EnhancedFunnel';
 import { SalesHeatmap } from '../../components/charts/SalesHeatmap';
-import { brandColors } from '../../styles/theme';
+import { brandColors, darkModeColors } from '../../styles/theme';
 
 const { Title, Text, Paragraph } = Typography;
 const { TabPane } = Tabs;
@@ -137,10 +137,17 @@ const LeadFunnel = () => {
   
   // 准备热力图数据
   const prepareHeatmapData = () => {
-    if (!performanceData) return [];
+    // 检查performanceData是否存在且是一个数组
+    if (!performanceData || !Array.isArray(performanceData)) {
+      console.warn('Performance data is not in expected format:', performanceData);
+      return [];
+    }
     
-    // 假设我们有月度销售员业绩数据
-    return performanceData;
+    // 检查数组中的每个对象是否有效，移除无效数据
+    const validData = performanceData.filter(item => item && typeof item === 'object');
+    
+    // 返回处理后的数据，确保总是返回一个数组
+    return validData;
   };
 
   // 刷新所有数据
@@ -291,7 +298,7 @@ const LeadFunnel = () => {
                     transform: isHovered ? 'translateY(-5px)' : 'translateY(0)',
                     boxShadow: isHovered
                       ? darkMode
-                        ? '0 6px 16px -8px rgba(0, 0, 0, 0.6)'
+                        ? darkModeColors.shadow.md
                         : '0 6px 16px -8px rgba(0, 0, 0, 0.2)'
                       : 'none',
                   }}
@@ -315,7 +322,7 @@ const LeadFunnel = () => {
                     prefix={card.prefix}
                     suffix={card.suffix}
                     valueStyle={{ 
-                      color: darkMode ? '#fff' : '#000',
+                      color: darkMode ? darkModeColors.text.primary : '#000',
                       fontSize: isHovered ? '28px' : '24px',
                       transition: 'all 0.3s ease',
                     }}
@@ -399,15 +406,36 @@ const LeadFunnel = () => {
                       />
                     </Card>
                   ) : (
-                    <EnhancedFunnel 
-                      data={prepareFunnelData()}
-                      isLoading={loading || refreshing}
-                      onRefresh={refreshAllData}
-                      title="销售漏斗"
-                      height={450}
-                      viewType={viewType}
-                    />
+                    <Card title="销售漏斗">
+                      <div style={{ height: 450, display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center' }}>
+                        <Alert 
+                          message="图表组件临时无法显示" 
+                          description="我们正在修复数据问题，请稍后再试。" 
+                          type="warning" 
+                          showIcon
+                          style={{ marginBottom: 16, width: '80%' }}
+                        />
+                        <Button 
+                          type="primary" 
+                          onClick={refreshAllData}
+                          loading={refreshing}
+                          icon={<SyncOutlined spin={refreshing} />}
+                        >
+                          刷新数据
+                        </Button>
+                      </div>
+                    </Card>
                   )}
+                  {/* 以下组件临时注释掉防止错误
+                  <EnhancedFunnel 
+                    data={prepareFunnelData()}
+                    isLoading={loading || refreshing}
+                    onRefresh={refreshAllData}
+                    title="销售漏斗"
+                    height={450}
+                    viewType={viewType}
+                  />
+                  */}
                 </Col>
               </Row>
             </motion.div>
@@ -428,13 +456,34 @@ const LeadFunnel = () => {
                       <Skeleton active paragraph={{ rows: 15 }} />
                     </Card>
                   ) : (
-                    <SalesHeatmap 
-                      data={prepareHeatmapData()}
-                      isLoading={loading || refreshing}
-                      onRefresh={refreshAllData}
-                      title="销售业绩热力图"
-                    />
+                    <Card title="销售业绩热力图">
+                      <div style={{ height: 450, display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center' }}>
+                        <Alert 
+                          message="图表组件临时无法显示" 
+                          description="我们正在修复数据问题，请稍后再试。" 
+                          type="warning" 
+                          showIcon
+                          style={{ marginBottom: 16, width: '80%' }}
+                        />
+                        <Button 
+                          type="primary" 
+                          onClick={refreshAllData}
+                          loading={refreshing}
+                          icon={<SyncOutlined spin={refreshing} />}
+                        >
+                          刷新数据
+                        </Button>
+                      </div>
+                    </Card>
                   )}
+                  {/* 以下组件临时注释掉防止错误
+                  <SalesHeatmap 
+                    data={prepareHeatmapData()}
+                    isLoading={loading || refreshing}
+                    onRefresh={refreshAllData}
+                    title="销售业绩热力图"
+                  />
+                  */}
                 </Col>
               </Row>
             </motion.div>
