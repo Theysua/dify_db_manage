@@ -13,7 +13,8 @@ import {
   LogoutOutlined,
   MenuFoldOutlined,
   MenuUnfoldOutlined,
-  BellOutlined
+  BellOutlined,
+  FileTextOutlined
 } from '@ant-design/icons';
 import { Layout, Menu, Button, message, Dropdown, Avatar, Badge, Tooltip, Space, Divider } from 'antd';
 import React, { useState, useEffect } from 'react';
@@ -74,6 +75,11 @@ const MainLayout = () => {
       key: '/operations',
       icon: <ControlOutlined />,
       label: '运营工作台（新建许可证）',
+    },
+    {
+      key: '/orders',
+      icon: <FileTextOutlined />,
+      label: '订单管理',
     },
     {
       key: '/leads',

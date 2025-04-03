@@ -23,6 +23,7 @@ import SalesRepDetail from './pages/sales_reps/SalesRepDetail';
 import Engineers from './pages/engineers/Engineers';
 import EngineerDetail from './pages/engineers/EngineerDetail';
 import Operations from './pages/operations/Operations';
+import Orders from './pages/orders/Orders';
 import NotFound from './pages/NotFound';
 
 // 商机管理页面
@@ -151,6 +152,7 @@ function App() {
               <Route path=":id" element={<ProtectedRoute><EngineerDetail /></ProtectedRoute>} />
             </Route>
             <Route path="operations" element={<ProtectedRoute><Operations /></ProtectedRoute>} />
+            <Route path="orders" element={<ProtectedRoute><Orders /></ProtectedRoute>} />
             <Route path="leads">
               <Route index element={<ProtectedRoute><LeadList /></ProtectedRoute>} />
               <Route path=":leadId" element={<ProtectedRoute><LeadDetail /></ProtectedRoute>} />
