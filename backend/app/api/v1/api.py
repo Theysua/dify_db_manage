@@ -1,6 +1,6 @@
 from fastapi import APIRouter
 
-from app.api.v1.endpoints import licenses, customers, sales_reps, resellers, purchases, deployments, engineers, admin_partners, partners, auth, users, partner_create, admin_orders, leads
+from app.api.v1.endpoints import licenses, customers, sales_reps, resellers, purchases, deployments, engineers, admin_partners, partners, auth, users, partner_create, admin_orders, leads, activation
 
 api_router = APIRouter()
 
@@ -18,3 +18,5 @@ api_router.include_router(auth.router, prefix="/auth", tags=["auth"])
 api_router.include_router(users.router, prefix="/users", tags=["users"])
 api_router.include_router(partner_create.router, prefix="/setup", tags=["setup"])
 api_router.include_router(leads.router, prefix="/leads", tags=["leads"])
+# 注册许可证激活API路由 - 与前端调用路径保持一致
+api_router.include_router(activation.router, prefix="/activation", tags=["license-activation"])

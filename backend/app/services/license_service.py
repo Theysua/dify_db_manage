@@ -194,7 +194,7 @@ class LicenseService:
                 SalesRepName=license.sales_rep.sales_rep_name,
                 Email=license.sales_rep.email,
                 Phone=license.sales_rep.phone,
-                Department=license.sales_rep.department,
+                Department=license.sales_rep.salesperson_type,
                 Position=license.sales_rep.position,
                 Status=license.sales_rep.status,
                 CreatedAt=license.sales_rep.created_at,

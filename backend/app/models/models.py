@@ -77,6 +77,12 @@ class License(Base):
     authorized_users = Column(Integer, default=0)
     actual_workspaces = Column(Integer, default=0)
     actual_users = Column(Integer, default=0)
+    # 新增激活方式字段
+    activation_mode = Column(Enum('ONLINE', 'OFFLINE', name='activation_mode_enum'), default='ONLINE')
+    cluster_id = Column(String(100), nullable=True)  # 离线激活需要的cluster ID
+    offline_code = Column(String(255), nullable=True)  # 离线激活码
+    activation_history = Column(JSON, default=dict)  # 激活方式变更历史
+    last_activation_change = Column(DateTime, nullable=True)  # 上次激活方式变更时间
     deployment_status = Column(Enum('PLANNED', 'IN_PROGRESS', 'COMPLETED', 'FAILED', name='deployment_status_enum'), default='PLANNED')
     deployment_date = Column(Date)
     license_status = Column(Enum('ACTIVE', 'EXPIRED', 'TERMINATED', 'PENDING', name='license_status_enum'), default='PENDING')

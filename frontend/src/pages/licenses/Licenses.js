@@ -78,7 +78,8 @@ const Licenses = () => {
           AuthorizedUsers: 100,
           ActualUsers: 75,
           DeploymentStatus: 'COMPLETED',
-          LicenseStatus: 'ACTIVE'
+          LicenseStatus: 'ACTIVE',
+          ActivationMode: 'ONLINE'
         },
         {
           LicenseID: 'ENT-2025-002',
@@ -91,7 +92,8 @@ const Licenses = () => {
           AuthorizedUsers: 50,
           ActualUsers: 30,
           DeploymentStatus: 'PLANNED',
-          LicenseStatus: 'ACTIVE'
+          LicenseStatus: 'ACTIVE',
+          ActivationMode: 'OFFLINE'
         }
       ];
       setLicenses(mockData);
@@ -153,6 +155,14 @@ const Licenses = () => {
     
     if (values.licenseStatus) {
       filters.license_status = values.licenseStatus;
+    }
+    
+    if (values.activationMode) {
+      filters.activation_mode = values.activationMode;
+    }
+    
+    if (values.clusterId) {
+      filters.cluster_id = values.clusterId;
     }
     
     if (values.dateRange && values.dateRange[0] && values.dateRange[1]) {
@@ -287,6 +297,15 @@ const Licenses = () => {
     return <Tag>{status}</Tag>;
   };
 
+  const getActivationModeTag = (mode) => {
+    if (mode === 'ONLINE') {
+      return <Tag color="blue">在线部署</Tag>;
+    } else if (mode === 'OFFLINE') {
+      return <Tag color="purple">离线部署</Tag>;
+    }
+    return <Tag color="blue">在线部署</Tag>; // 默认为在线部署
+  };
+
   const columns = [
     {
       title: '许可证ID',
@@ -353,6 +372,12 @@ const Licenses = () => {
       dataIndex: 'LicenseStatus',
       key: 'LicenseStatus',
       render: (status) => getLicenseStatusTag(status),
+    },
+    {
+      title: '激活模式',
+      dataIndex: 'ActivationMode',
+      key: 'ActivationMode',
+      render: (mode) => getActivationModeTag(mode),
     },
     {
       title: '操作',
@@ -436,12 +461,27 @@ const Licenses = () => {
             </Col>
           </Row>
           <Row gutter={16}>
+            <Col span={6}>
+              <Form.Item name="activationMode" label="部署方式">
+                <Select placeholder="选择部署方式" allowClear>
+                  <Option value="ONLINE">在线部署</Option>
+                  <Option value="OFFLINE">离线部署</Option>
+                </Select>
+              </Form.Item>
+            </Col>
+            <Col span={6}>
+              <Form.Item name="clusterId" label="集群ID">
+                <Input placeholder="输入集群ID" />
+              </Form.Item>
+            </Col>
             <Col span={12}>
               <Form.Item name="dateRange" label="时间范围">
                 <RangePicker style={{ width: '100%' }} />
               </Form.Item>
             </Col>
-            <Col span={12} style={{ textAlign: 'right' }}>
+          </Row>
+          <Row gutter={16}>
+            <Col span={24} style={{ textAlign: 'right' }}>
               <Button type="primary" htmlType="submit" icon={<SearchOutlined />}>
                 搜索
               </Button>

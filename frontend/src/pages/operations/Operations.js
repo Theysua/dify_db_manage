@@ -126,7 +126,9 @@ const Operations = () => {
         ActualWorkspaces: 0,
         ActualUsers: 0,
         Notes: values.notes,
-        LicenseStatus: 'PENDING'
+        LicenseStatus: 'PENDING',
+        ActivationMode: values.activationMode || 'ONLINE',
+        ClusterID: values.activationMode === 'OFFLINE' ? values.clusterId : null
       };
       
       // Get a license ID from the license server based on the form data
@@ -329,6 +331,49 @@ const Operations = () => {
       icon: <FileTextOutlined />,
       content: (
         <Card className="apple-card" bordered={false}>
+          <Row gutter={24}>
+            <Col span={24}>
+              <Form.Item
+                name="activationMode"
+                label="激活模式"
+                initialValue="ONLINE"
+                rules={[{ required: true, message: '请选择激活模式' }]}
+              >
+                <Select
+                  placeholder="选择激活模式"
+                  className="apple-select"
+                >
+                  <Option value="ONLINE">在线部署</Option>
+                  <Option value="OFFLINE">离线部署</Option>
+                </Select>
+              </Form.Item>
+            </Col>
+          </Row>
+          
+          <Form.Item
+            noStyle
+            shouldUpdate={(prevValues, currentValues) => prevValues.activationMode !== currentValues.activationMode}
+          >
+            {({ getFieldValue }) => (
+              getFieldValue('activationMode') === 'OFFLINE' ? (
+                <Row gutter={24}>
+                  <Col span={24}>
+                    <Form.Item
+                      name="clusterId"
+                      label="集群ID"
+                      rules={[{ required: true, message: '离线部署时需要提供集群ID' }]}
+                    >
+                      <Input 
+                        placeholder="输入客户集群ID" 
+                        className="apple-input"
+                      />
+                    </Form.Item>
+                  </Col>
+                </Row>
+              ) : null
+            )}
+          </Form.Item>
+          
           <Form.Item
             name="notes"
             label="备注"
@@ -394,6 +439,17 @@ const Operations = () => {
                   <Col span={12}>
                     <Text>
                       {licenseForm.getFieldValue('productName')} {licenseForm.getFieldValue('productVersion')}
+                    </Text>
+                  </Col>
+                  
+                  <Col span={12}>
+                    <Text strong>激活模式:</Text>
+                  </Col>
+                  <Col span={12}>
+                    <Text>
+                      {licenseForm.getFieldValue('activationMode') === 'ONLINE' ? '在线部署' : '离线部署'}
+                      {licenseForm.getFieldValue('activationMode') === 'OFFLINE' && licenseForm.getFieldValue('clusterId') ? 
+                        ` (集群ID: ${licenseForm.getFieldValue('clusterId')})` : ''}
                     </Text>
                   </Col>
                   

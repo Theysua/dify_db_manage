@@ -533,3 +533,7 @@ const EnhancedOrderForm = () => {
       </Card>
     );
   };
+
+};
+
+export default EnhancedOrderForm;
