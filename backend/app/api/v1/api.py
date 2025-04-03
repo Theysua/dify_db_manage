@@ -1,6 +1,6 @@
 from fastapi import APIRouter
 
-from app.api.v1.endpoints import licenses, customers, sales_reps, resellers, purchases, deployments, engineers, admin_partners, partners, auth, users, partner_create, admin_orders, leads, activation, orders
+from app.api.v1.endpoints import licenses, customers, sales_reps, resellers, purchases, deployments, engineers, admin_partners, partners, auth, users, partner_create, admin_orders, leads, activation, orders, partner_identity
 
 api_router = APIRouter()
 
@@ -23,3 +23,6 @@ api_router.include_router(activation.router, prefix="/activation", tags=["licens
 
 # 注册订单处理API路由
 api_router.include_router(orders.router, prefix="/orders", tags=["orders"])
+
+# 注册合作商身份识别与邮箱映射API路由
+api_router.include_router(partner_identity.router, prefix="/partner-identity", tags=["partner-identity"])

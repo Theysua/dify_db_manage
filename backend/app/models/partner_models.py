@@ -22,6 +22,9 @@ class Partner(Base):
     created_at = Column(DateTime, default=func.now())
     updated_at = Column(DateTime, default=func.now(), onupdate=func.now())
     
+    # 关联
+    identities = relationship("PartnerIdentity", back_populates="partner", cascade="all, delete-orphan")
+    
     # Note: orders relationship removed since orders now reference customers, not partners
 
 

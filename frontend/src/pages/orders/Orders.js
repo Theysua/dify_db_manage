@@ -19,7 +19,8 @@ import {
   InputNumber,
   Row,
   Col,
-  Tooltip
+  Tooltip,
+  Divider
 } from 'antd';
 import {
   PlusOutlined,
@@ -28,7 +29,8 @@ import {
   CheckCircleOutlined,
   CloseCircleOutlined,
   EditOutlined,
-  QuestionCircleOutlined
+  QuestionCircleOutlined,
+  InfoCircleOutlined
 } from '@ant-design/icons';
 import moment from 'moment';
 import { fetchWithAuth, API_BASE_URL } from '../../utils/api';
@@ -516,6 +518,89 @@ const Orders = () => {
               提交
             </Button>
           </div>
+        }
+        extra={
+          <Tooltip title="查看API文档">
+            <Button 
+              type="text" 
+              icon={<InfoCircleOutlined />} 
+              onClick={() => Modal.info({
+                title: '订单创建API文档',
+                width: 700,
+                content: (
+                  <div>
+                    <Typography.Title level={4}>手动创建订单 API</Typography.Title>
+                    <Typography.Paragraph>
+                      <strong>端点：</strong> POST /api/v1/orders/manual-create
+                    </Typography.Paragraph>
+                    
+                    <Typography.Paragraph>
+                      <strong>描述：</strong> 手动创建新的采购订单 (PO)，供内部系统使用
+                    </Typography.Paragraph>
+                    
+                    <Typography.Title level={5}>请求参数</Typography.Title>
+                    <pre style={{ background: '#f5f5f5', padding: 10, borderRadius: 4, overflow: 'auto', maxHeight: 300 }}>
+{`{
+  "po_number": "PO12345",              // 必填，采购订单号
+  "customer_id": 1,                   // 必填，客户ID
+  "customer_name": "示例公司",         // 必填，客户名称
+  "contact_person": "张三",           // 可选，联系人
+  "contact_email": "zhangsan@ex.com", // 可选，联系邮箱
+  "contact_phone": "13812345678",     // 可选，联系电话
+  
+  "product_name": "Dify企业版",        // 必填，产品名称
+  "product_version": "1.0",           // 可选，产品版本
+  "license_type": "ENTERPRISE",       // 必填，许可类型
+  "quantity": 1,                      // 可选，数量，默认为1
+  "amount": 10000,                    // 必填，金额
+  "currency": "CNY",                  // 可选，货币，默认为USD
+  
+  "authorized_workspaces": 5,         // 可选，授权工作区数量
+  "authorized_users": 20,             // 可选，授权用户数量
+  
+  "order_date": "2025-04-03",         // 必填，订单日期
+  "activation_mode": "ONLINE",        // 可选，激活模式，默认为ONLINE
+  "cluster_id": "cluster123"          // 可选，集群ID（离线模式需要）
+}`}
+                    </pre>
+                    
+                    <Typography.Title level={5}>返回示例</Typography.Title>
+                    <pre style={{ background: '#f5f5f5', padding: 10, borderRadius: 4, overflow: 'auto', maxHeight: 300 }}>
+{`{
+  "order_id": 1,
+  "po_number": "PO12345",
+  "customer_id": 1,
+  "customer_name": "示例公司",
+  "product_name": "Dify企业版", 
+  "license_type": "ENTERPRISE",
+  "order_status": "PENDING",
+  "order_source": "MANUAL",
+  "created_at": "2025-04-03T10:15:30",
+  "updated_at": "2025-04-03T10:15:30"
+  ... // 其他字段
+}`}
+                    </pre>
+                    
+                    <Divider />
+                    
+                    <Typography.Title level={4}>外部系统创建订单 API</Typography.Title>
+                    <Typography.Paragraph>
+                      <strong>端点：</strong> POST /api/v1/orders/create
+                    </Typography.Paragraph>
+                    
+                    <Typography.Paragraph>
+                      <strong>描述：</strong> 创建新的采购订单 (PO)，供外部系统调用
+                    </Typography.Paragraph>
+                    
+                    <Typography.Paragraph>
+                      参数格式与手动创建订单相同，但无需指定order_source（默认为API）
+                    </Typography.Paragraph>
+                  </div>
+                ),
+                maskClosable: true
+              })}
+            />
+          </Tooltip>
         }
       >
         <Form

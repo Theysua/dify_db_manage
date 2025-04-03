@@ -12,7 +12,9 @@ from sqlalchemy.orm import Session
 
 from app.db.database import get_db
 from app.api import deps
+from app.api import deps_partner
 from app.models.user_models import User
+from app.models.partner_models import Partner
 from app.models.order_models import PurchaseOrder
 from app.services.order_service import OrderService
 from app.schemas import order_schemas
@@ -22,19 +24,32 @@ router = APIRouter()
 @router.post("/create", response_model=order_schemas.PurchaseOrderInfo)
 def create_order(
     order_data: order_schemas.PurchaseOrderCreate,
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
+    partner: Partner = Depends(deps_partner.get_partner_by_uuid)
 ):
     """
     创建新的采购订单 (PO)
     
     此API供外部系统调用，创建新的PO单
+    
+    身份验证：
+    - 需要在请求头中提供X-Partner-UUID
     """
+    # 添加合作商信息到订单中
+    source_details = order_data.source_details or {}
+    source_details.update({
+        "partner_id": partner.partner_id,
+        "partner_name": partner.partner_name
+    })
+    order_data.source_details = source_details
+    
     return OrderService.create_order(db, order_data)
 
 @router.post("/manual-create", response_model=order_schemas.PurchaseOrderInfo)
 def create_manual_order(
     order_data: order_schemas.PurchaseOrderManualCreate,
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
+    current_user: User = Depends(deps.get_current_field_staff)
 ):
     """
     手动创建采购订单 (PO)

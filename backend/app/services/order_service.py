@@ -51,6 +51,16 @@ class OrderService:
         order = db.query(PurchaseOrder).filter(PurchaseOrder.order_id == order_id).first()
         if not order:
             raise HTTPException(status_code=404, detail=f"订单ID '{order_id}' 不存在")
+        
+        # 处理source_details字段，将JSON字符串转换为字典对象
+        import json
+        if order.source_details and isinstance(order.source_details, str):
+            try:
+                order.source_details = json.loads(order.source_details)
+            except json.JSONDecodeError:
+                # 如果JSON解析失败，设置为None避免验证错误
+                order.source_details = None
+                
         return order
     
     @staticmethod
@@ -59,6 +69,16 @@ class OrderService:
         order = db.query(PurchaseOrder).filter(PurchaseOrder.po_number == po_number).first()
         if not order:
             raise HTTPException(status_code=404, detail=f"采购订单号 '{po_number}' 不存在")
+            
+        # 处理source_details字段，将JSON字符串转换为字典对象
+        import json
+        if order.source_details and isinstance(order.source_details, str):
+            try:
+                order.source_details = json.loads(order.source_details)
+            except json.JSONDecodeError:
+                # 如果JSON解析失败，设置为None避免验证错误
+                order.source_details = None
+                
         return order
     
     @staticmethod
@@ -94,6 +114,16 @@ class OrderService:
         # 分页
         orders = query.order_by(PurchaseOrder.created_at.desc()).offset(skip).limit(limit).all()
         
+        # 处理source_details字段，将JSON字符串转换为字典对象
+        import json
+        for order in orders:
+            if order.source_details and isinstance(order.source_details, str):
+                try:
+                    order.source_details = json.loads(order.source_details)
+                except json.JSONDecodeError:
+                    # 如果JSON解析失败，设置为None避免验证错误
+                    order.source_details = None
+        
         return {
             "total": total,
             "items": orders
@@ -107,7 +137,7 @@ class OrderService:
         current_user: str
     ) -> PurchaseOrder:
         """更新PO单状态（审核）"""
-        # 获取订单
+        # 获取订单 - 这里调用的get_order已经处理了source_details
         order = OrderService.get_order(db, order_id)
         
         # 已完成的订单不能再修改状态
